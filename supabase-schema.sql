@@ -44,6 +44,10 @@ CREATE TABLE public.clients (
   age INTEGER,
   gender TEXT CHECK (gender IN ('male', 'female', 'other')),
   trainer_id UUID REFERENCES public.trainers(id) ON DELETE SET NULL,
+  first_payment DECIMAL(10, 2) DEFAULT 0,
+  payment_mode TEXT CHECK (payment_mode IN ('cash', 'upi', 'card', 'bank_transfer', 'other')),
+  balance DECIMAL(10, 2) DEFAULT 0,
+  session_type TEXT CHECK (session_type IN ('1 month', '3 months', '6 months', '12 months')),
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

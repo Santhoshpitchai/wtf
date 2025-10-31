@@ -38,12 +38,14 @@ export interface Client {
   age?: number
   gender?: 'male' | 'female' | 'other'
   trainer_id?: string
+  first_payment?: number
+  payment_mode?: 'cash' | 'upi' | 'card' | 'bank_transfer' | 'other'
+  balance?: number
+  session_type?: '1 month' | '3 months' | '6 months' | '12 months'
   status: 'active' | 'inactive'
   created_at: string
   updated_at: string
   trainer?: Trainer
-  first_payment?: number
-  session_type?: string
 }
 
 export interface Payment {

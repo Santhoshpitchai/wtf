@@ -12,6 +12,9 @@ export default function ClientsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showFilterMenu, setShowFilterMenu] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [formLoading, setFormLoading] = useState(false)
   const [formError, setFormError] = useState('')
   const [formSuccess, setFormSuccess] = useState(false)
@@ -25,6 +28,10 @@ export default function ClientsPage() {
     age: '',
     gender: '' as 'male' | 'female' | 'other' | '',
     trainer_id: '',
+    first_payment: '',
+    payment_mode: '' as 'cash' | 'upi' | 'card' | 'bank_transfer' | 'other' | '',
+    balance: '',
+    session_type: '' as '1 month' | '3 months' | '6 months' | '12 months' | '',
     status: 'active' as 'active' | 'inactive'
   })
 
@@ -92,6 +99,10 @@ export default function ClientsPage() {
           age: formData.age ? parseInt(formData.age) : null,
           gender: formData.gender || null,
           trainer_id: formData.trainer_id || null,
+          first_payment: formData.first_payment ? parseFloat(formData.first_payment) : 0,
+          payment_mode: formData.payment_mode || null,
+          balance: formData.balance ? parseFloat(formData.balance) : 0,
+          session_type: formData.session_type || null,
           status: formData.status
         }])
 
@@ -108,6 +119,10 @@ export default function ClientsPage() {
           age: '',
           gender: '',
           trainer_id: '',
+          first_payment: '',
+          payment_mode: '',
+          balance: '',
+          session_type: '',
           status: 'active'
         })
         fetchClients()
@@ -124,11 +139,28 @@ export default function ClientsPage() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const filteredClients = clients.filter(client =>
-    client.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.client_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredClients = clients.filter(client => {
+    // Search filter
+    const matchesSearch = searchTerm === '' || 
+      client.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.client_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.email.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    // Status filter
+    const matchesStatus = statusFilter === 'all' || client.status === statusFilter
+    
+    // Date range filter
+    let matchesDate = true
+    if (dateRange.start && dateRange.end) {
+      const clientDate = new Date(client.created_at)
+      const startDate = new Date(dateRange.start)
+      const endDate = new Date(dateRange.end)
+      endDate.setHours(23, 59, 59, 999) // Include the entire end date
+      matchesDate = clientDate >= startDate && clientDate <= endDate
+    }
+    
+    return matchesSearch && matchesStatus && matchesDate
+  })
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -149,14 +181,61 @@ export default function ClientsPage() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-            <Filter size={20} />
-            Filters
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <div className="relative">
+            <button 
+              onClick={() => setShowFilterMenu(!showFilterMenu)}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              <Filter size={20} />
+              Filters
+              {statusFilter !== 'all' && (
+                <span className="ml-1 px-2 py-0.5 bg-teal-500 text-white text-xs rounded-full">1</span>
+              )}
+            </button>
+            {showFilterMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                <div className="p-2">
+                  <div className="text-xs font-semibold text-gray-500 px-3 py-2">Status</div>
+                  <button
+                    onClick={() => { setStatusFilter('all'); setShowFilterMenu(false) }}
+                    className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'all' ? 'bg-gray-100 font-medium' : ''}`}
+                  >
+                    All Status
+                  </button>
+                  <button
+                    onClick={() => { setStatusFilter('active'); setShowFilterMenu(false) }}
+                    className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'active' ? 'bg-gray-100 font-medium' : ''}`}
+                  >
+                    Active Only
+                  </button>
+                  <button
+                    onClick={() => { setStatusFilter('inactive'); setShowFilterMenu(false) }}
+                    className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'inactive' ? 'bg-gray-100 font-medium' : ''}`}
+                  >
+                    Inactive Only
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg">
             <Calendar size={20} />
-            April 11 - April 24
-          </button>
+            <input
+              type="date"
+              value={dateRange.start}
+              onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+              className="border-none focus:outline-none text-sm"
+              placeholder="Start date"
+            />
+            <span>-</span>
+            <input
+              type="date"
+              value={dateRange.end}
+              onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+              className="border-none focus:outline-none text-sm"
+              placeholder="End date"
+            />
+          </div>
         </div>
         <button 
           onClick={() => setShowAddModal(true)}
@@ -210,10 +289,10 @@ export default function ClientsPage() {
                     {new Date(client.created_at).toLocaleDateString()}
                   </td>
                   <td className="p-4 text-sm text-gray-900">{client.full_name}</td>
-                  <td className="p-4 text-sm text-gray-600">${client.age || '-'}</td>
+                  <td className="p-4 text-sm text-gray-600">{client.age || '-'}</td>
                   <td className="p-4 text-sm text-gray-600">{client.email}</td>
-                  <td className="p-4 text-sm text-gray-600">$0</td>
-                  <td className="p-4 text-sm text-gray-600">{client.session_type || '12'}</td>
+                  <td className="p-4 text-sm text-gray-600">₹{client.first_payment || 0}</td>
+                  <td className="p-4 text-sm text-gray-600">{client.session_type || '-'}</td>
                 </tr>
               ))
             )}
@@ -404,6 +483,79 @@ export default function ClientsPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                {/* Session Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Session Type
+                  </label>
+                  <select
+                    name="session_type"
+                    value={formData.session_type}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                  >
+                    <option value="">Select session type</option>
+                    <option value="1 month">1 Month</option>
+                    <option value="3 months">3 Months</option>
+                    <option value="6 months">6 Months</option>
+                    <option value="12 months">12 Months</option>
+                  </select>
+                </div>
+
+                {/* First Payment */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    First Payment (₹)
+                  </label>
+                  <input
+                    type="number"
+                    name="first_payment"
+                    value={formData.first_payment}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                {/* Payment Mode */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Payment Mode
+                  </label>
+                  <select
+                    name="payment_mode"
+                    value={formData.payment_mode}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                  >
+                    <option value="">Select payment mode</option>
+                    <option value="cash">Cash</option>
+                    <option value="upi">UPI</option>
+                    <option value="card">Card</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                {/* Balance */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Balance
+                  </label>
+                  <input
+                    type="number"
+                    name="balance"
+                    value={formData.balance}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                  />
                 </div>
 
                 {/* Status */}
