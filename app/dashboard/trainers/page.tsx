@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Search, Filter, MoreHorizontal, X, Edit2, Users, CheckCircle } from 'lucide-react'
+import { Search, Filter, MoreHorizontal, X, Edit2, Users, CheckCircle, Trash2, AlertTriangle } from 'lucide-react'
 import type { Trainer, Client } from '@/types'
+import ProtectedRoute from '@/components/ProtectedRoute'
 
 interface TrainerWithClients extends Trainer {
   clients: Client[]
   client_count: number
 }
 
-export default function TrainersPage() {
+function TrainersPageContent() {
   const [trainers, setTrainers] = useState<TrainerWithClients[]>([])
   const [filteredTrainers, setFilteredTrainers] = useState<TrainerWithClients[]>([])
   const [loading, setLoading] = useState(true)
@@ -19,10 +20,13 @@ export default function TrainersPage() {
   const [showFilterMenu, setShowFilterMenu] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showClientsModal, setShowClientsModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedTrainer, setSelectedTrainer] = useState<TrainerWithClients | null>(null)
   const [formLoading, setFormLoading] = useState(false)
   const [formError, setFormError] = useState('')
   const [formSuccess, setFormSuccess] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
   const [editFormData, setEditFormData] = useState({
     first_name: '',
     last_name: '',
@@ -49,17 +53,25 @@ export default function TrainersPage() {
         .from('trainers')
         .select(`
           *,
-          clients:clients(id, full_name, email, phone_number, age, gender, status)
+          clients:clients(id, full_name, email, phone_number, age, gender, status, first_payment, balance)
         `)
         .order('created_at', { ascending: false })
 
       if (error) throw error
 
-      const trainersWithCount = (trainersData || []).map(trainer => ({
-        ...trainer,
-        clients: trainer.clients || [],
-        client_count: (trainer.clients || []).length
-      }))
+      const trainersWithCount = (trainersData || []).map(trainer => {
+        const clients = trainer.clients || []
+        const paymentsCollected = clients.reduce((sum: number, client: any) => sum + (client.first_payment || 0), 0)
+        const paymentsPending = clients.reduce((sum: number, client: any) => sum + (client.balance || 0), 0)
+        
+        return {
+          ...trainer,
+          clients,
+          client_count: clients.length,
+          payments_collected: paymentsCollected,
+          payments_pending: paymentsPending
+        }
+      })
 
       setTrainers(trainersWithCount)
       setFilteredTrainers(trainersWithCount)
@@ -143,6 +155,56 @@ export default function TrainersPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setEditFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleDeleteClick = (trainer: TrainerWithClients) => {
+    setSelectedTrainer(trainer)
+    setShowDeleteModal(true)
+    setDeleteError('')
+  }
+
+  const handleDeleteTrainer = async () => {
+    if (!selectedTrainer) return
+
+    setDeleteLoading(true)
+    setDeleteError('')
+
+    try {
+      // First, check if trainer has an associated user account
+      if (selectedTrainer.user_id) {
+        // Delete the user from auth.users (this will cascade to public.users)
+        const { error: authError } = await supabase.auth.admin.deleteUser(
+          selectedTrainer.user_id
+        )
+        
+        if (authError) {
+          // If we don't have admin API access, just delete from public.users
+          const { error: userError } = await supabase
+            .from('users')
+            .delete()
+            .eq('id', selectedTrainer.user_id)
+          
+          if (userError) throw userError
+        }
+      }
+
+      // Delete the trainer record (this will cascade delete related records)
+      const { error: trainerError } = await supabase
+        .from('trainers')
+        .delete()
+        .eq('id', selectedTrainer.id)
+
+      if (trainerError) throw trainerError
+
+      // Success - close modal and refresh
+      setShowDeleteModal(false)
+      setShowEditModal(false)
+      fetchTrainers()
+    } catch (error: any) {
+      setDeleteError(error.message || 'Failed to delete trainer')
+    } finally {
+      setDeleteLoading(false)
+    }
   }
 
   return (
@@ -257,8 +319,8 @@ export default function TrainersPage() {
                       )}
                     </button>
                   </td>
-                  <td className="p-4 text-sm text-gray-600">{trainer.payments_collected || 5000}.00</td>
-                  <td className="p-4 text-sm text-gray-600">{trainer.payments_pending || 5000}.00</td>
+                  <td className="p-4 text-sm font-medium text-gray-900">₹{trainer.payments_collected?.toFixed(2) || '0.00'}</td>
+                  <td className="p-4 text-sm font-medium text-gray-900">₹{trainer.payments_pending?.toFixed(2) || '0.00'}</td>
                   <td className="p-4">
                     <span className={`text-sm ${trainer.status === 'active' ? 'text-green-600' : 'text-red-600'}`}>
                       {trainer.status === 'active' ? 'Active' : 'Inactive'}
@@ -386,19 +448,30 @@ export default function TrainersPage() {
               <div className="flex gap-3 pt-4 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => handleDeleteClick(selectedTrainer)}
+                  className="px-6 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2"
                   disabled={formLoading}
                 >
-                  Cancel
+                  <Trash2 size={18} />
+                  Delete
                 </button>
-                <button
-                  type="submit"
-                  disabled={formLoading || formSuccess}
-                  className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50"
-                >
-                  {formLoading ? 'Updating...' : formSuccess ? 'Updated!' : 'Update Trainer'}
-                </button>
+                <div className="flex-1 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    disabled={formLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={formLoading || formSuccess}
+                    className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50"
+                  >
+                    {formLoading ? 'Updating...' : formSuccess ? 'Updated!' : 'Update Trainer'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -435,12 +508,12 @@ export default function TrainersPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {selectedTrainer.clients.map((client) => (
+                  {selectedTrainer.clients.map((client: any) => (
                     <div key={client.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                            <span className="text-sm font-semibold text-gray-600">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                            <span className="text-sm font-semibold text-white">
                               {client.full_name.charAt(0)}
                             </span>
                           </div>
@@ -452,14 +525,34 @@ export default function TrainersPage() {
                         <div className="text-right">
                           {client.age && <p className="text-sm text-gray-600">Age: {client.age}</p>}
                           {client.gender && <p className="text-sm text-gray-600 capitalize">{client.gender}</p>}
-                          <span className={`text-xs ${client.status === 'active' ? 'text-green-600' : 'text-red-600'}`}>
+                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${client.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                             {client.status}
                           </span>
                         </div>
                       </div>
-                      {client.phone_number && (
-                        <p className="text-sm text-gray-600 mt-2">📞 {client.phone_number}</p>
-                      )}
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                        {client.phone_number && (
+                          <p className="text-sm text-gray-600">📞 {client.phone_number}</p>
+                        )}
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="text-xs text-gray-500">Outstanding</p>
+                            <p className={`text-sm font-bold ${(client.balance || 0) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                              ₹{(client.balance || 0).toFixed(2)}
+                            </p>
+                          </div>
+                          {(client.balance || 0) > 0 && (
+                            <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                              Pending
+                            </span>
+                          )}
+                          {(client.balance || 0) === 0 && (
+                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                              Paid
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -468,6 +561,86 @@ export default function TrainersPage() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedTrainer && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              
+              <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
+                Delete Trainer
+              </h2>
+              
+              <p className="text-gray-600 text-center mb-6">
+                Are you sure you want to delete <span className="font-semibold">{selectedTrainer.first_name} {selectedTrainer.last_name}</span>?
+                {selectedTrainer.client_count > 0 && (
+                  <span className="block mt-2 text-red-600 font-medium">
+                    ⚠️ This trainer has {selectedTrainer.client_count} client{selectedTrainer.client_count > 1 ? 's' : ''} assigned.
+                  </span>
+                )}
+              </p>
+
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-red-800">
+                  <strong>Warning:</strong> This action cannot be undone. The following will be deleted:
+                </p>
+                <ul className="text-sm text-red-700 mt-2 space-y-1 ml-4 list-disc">
+                  <li>Trainer profile and account</li>
+                  {selectedTrainer.user_id && <li>User login credentials</li>}
+                  <li>All associated data</li>
+                </ul>
+              </div>
+
+              {deleteError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+                  {deleteError}
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={deleteLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteTrainer}
+                  disabled={deleteLoading}
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {deleteLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={18} />
+                      Delete Trainer
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  )
+}
+
+export default function TrainersPage() {
+  return (
+    <ProtectedRoute allowedRoles={['admin']}>
+      <TrainersPageContent />
+    </ProtectedRoute>
   )
 }

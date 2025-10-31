@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import ProtectedRoute from '@/components/ProtectedRoute'
 
-export default function CreatePTPage() {
+function CreatePTPageContent() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -200,5 +201,13 @@ export default function CreatePTPage() {
         </div>
       </form>
     </div>
+  )
+}
+
+export default function CreatePTPage() {
+  return (
+    <ProtectedRoute allowedRoles={['admin']}>
+      <CreatePTPageContent />
+    </ProtectedRoute>
   )
 }

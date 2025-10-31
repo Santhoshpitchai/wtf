@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase'
 import { Search, Filter, Calendar, Plus, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type { Client } from '@/types'
+import { getCurrentUser } from '@/lib/auth'
+import type { AuthUser } from '@/lib/auth'
 
 export default function PaymentsPage() {
   const router = useRouter()
@@ -14,17 +16,31 @@ export default function PaymentsPage() {
   const [showFilterMenu, setShowFilterMenu] = useState(false)
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [dateRange, setDateRange] = useState({ start: '', end: '' })
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null)
 
   useEffect(() => {
-    fetchClients()
+    loadUserAndData()
   }, [])
 
-  const fetchClients = async () => {
+  const loadUserAndData = async () => {
+    const user = await getCurrentUser()
+    setCurrentUser(user)
+    await fetchClients(user)
+  }
+
+  const fetchClients = async (user: AuthUser | null) => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('clients')
         .select('*')
         .order('created_at', { ascending: false })
+
+      // If PT, filter to only show their clients
+      if (user?.role === 'pt' && user.trainer_id) {
+        query = query.eq('trainer_id', user.trainer_id)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
       setClients(data || [])

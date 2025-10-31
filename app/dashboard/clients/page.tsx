@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Search, Filter, Calendar, Plus, X, CheckCircle, User, Edit2 } from 'lucide-react'
 import type { Client, Trainer } from '@/types'
+import { getCurrentUser } from '@/lib/auth'
+import type { AuthUser } from '@/lib/auth'
 
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([])
@@ -20,6 +22,7 @@ export default function ClientsPage() {
   const [formError, setFormError] = useState('')
   const [formSuccess, setFormSuccess] = useState(false)
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null)
   const itemsPerPage = 10
 
   // Form state
@@ -38,19 +41,33 @@ export default function ClientsPage() {
   })
 
   useEffect(() => {
-    fetchClients()
-    fetchTrainers()
+    loadUserAndData()
   }, [])
 
-  const fetchClients = async () => {
+  const loadUserAndData = async () => {
+    const user = await getCurrentUser()
+    setCurrentUser(user)
+    await fetchClients(user)
+    await fetchTrainers(user)
+  }
+
+  const fetchClients = async (user: AuthUser | null) => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('clients')
         .select(`
           *,
           trainer:trainers(first_name, last_name)
         `)
         .order('created_at', { ascending: false })
+
+      // If PT, filter to only show their clients
+      // RLS will enforce this, but we add explicit filter for clarity
+      if (user?.role === 'pt' && user.trainer_id) {
+        query = query.eq('trainer_id', user.trainer_id)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
       setClients(data || [])
@@ -61,13 +78,21 @@ export default function ClientsPage() {
     }
   }
 
-  const fetchTrainers = async () => {
+  const fetchTrainers = async (user: AuthUser | null) => {
     try {
-      const { data, error } = await supabase
+      // If PT, only fetch their own trainer record
+      // If Admin, fetch all trainers
+      let query = supabase
         .from('trainers')
         .select('*')
         .eq('status', 'active')
         .order('first_name')
+
+      if (user?.role === 'pt' && user.trainer_id) {
+        query = query.eq('id', user.trainer_id)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
       setTrainers(data || [])
@@ -93,6 +118,12 @@ export default function ClientsPage() {
       const firstPayment = formData.first_payment ? parseFloat(formData.first_payment) : 0
       const balance = formData.balance ? parseFloat(formData.balance) : 0
       
+      // For PT users, automatically assign to their trainer_id
+      let trainerId = formData.trainer_id || null
+      if (currentUser?.role === 'pt' && currentUser.trainer_id) {
+        trainerId = currentUser.trainer_id
+      }
+      
       // Insert client
       const { data: clientData, error: clientError } = await supabase
         .from('clients')
@@ -103,7 +134,7 @@ export default function ClientsPage() {
           phone_number: formData.phone_number || null,
           age: formData.age ? parseInt(formData.age) : null,
           gender: formData.gender || null,
-          trainer_id: formData.trainer_id || null,
+          trainer_id: trainerId,
           first_payment: firstPayment,
           payment_mode: formData.payment_mode || null,
           balance: balance,
@@ -150,7 +181,7 @@ export default function ClientsPage() {
           session_type: '',
           status: 'active'
         })
-        fetchClients()
+        fetchClients(currentUser)
       }, 2000)
     } catch (error: any) {
       setFormError(error.message || 'Failed to add client')
@@ -166,13 +197,18 @@ export default function ClientsPage() {
 
   const handleEditClick = (client: Client) => {
     setSelectedClient(client)
+    // For PT users, ensure trainer_id is set to their own
+    const trainerId = currentUser?.role === 'pt' && currentUser.trainer_id 
+      ? currentUser.trainer_id 
+      : client.trainer_id || ''
+    
     setFormData({
       full_name: client.full_name,
       email: client.email,
       phone_number: client.phone_number || '',
       age: client.age?.toString() || '',
       gender: client.gender || '',
-      trainer_id: client.trainer_id || '',
+      trainer_id: trainerId,
       first_payment: client.first_payment?.toString() || '',
       payment_mode: client.payment_mode || '',
       balance: client.balance?.toString() || '',
@@ -194,6 +230,12 @@ export default function ClientsPage() {
       const firstPayment = formData.first_payment ? parseFloat(formData.first_payment) : 0
       const balance = formData.balance ? parseFloat(formData.balance) : 0
 
+      // For PT users, ensure trainer_id stays as their own
+      let trainerId = formData.trainer_id || null
+      if (currentUser?.role === 'pt' && currentUser.trainer_id) {
+        trainerId = currentUser.trainer_id
+      }
+
       // Update client
       const { error: clientError } = await supabase
         .from('clients')
@@ -203,7 +245,7 @@ export default function ClientsPage() {
           phone_number: formData.phone_number || null,
           age: formData.age ? parseInt(formData.age) : null,
           gender: formData.gender || null,
-          trainer_id: formData.trainer_id || null,
+          trainer_id: trainerId,
           first_payment: firstPayment,
           payment_mode: formData.payment_mode || null,
           balance: balance,
@@ -248,7 +290,7 @@ export default function ClientsPage() {
         setShowEditModal(false)
         setFormSuccess(false)
         setSelectedClient(null)
-        fetchClients()
+        fetchClients(currentUser)
       }, 1500)
     } catch (error: any) {
       setFormError(error.message || 'Failed to update client')
@@ -511,6 +553,7 @@ export default function ClientsPage() {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Note: PT users will have clients auto-assigned to them */}
                 {/* Full Name */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -593,25 +636,27 @@ export default function ClientsPage() {
                   </select>
                 </div>
 
-                {/* Trainer */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Assign Trainer
-                  </label>
-                  <select
-                    name="trainer_id"
-                    value={formData.trainer_id}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
-                  >
-                    <option value="">No trainer assigned</option>
-                    {trainers.map((trainer) => (
-                      <option key={trainer.id} value={trainer.id}>
-                        {trainer.first_name} {trainer.last_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {/* Trainer - Only show for Admin */}
+                {currentUser?.role === 'admin' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Assign Trainer
+                    </label>
+                    <select
+                      name="trainer_id"
+                      value={formData.trainer_id}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    >
+                      <option value="">No trainer assigned</option>
+                      {trainers.map((trainer) => (
+                        <option key={trainer.id} value={trainer.id}>
+                          {trainer.first_name} {trainer.last_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Session Type */}
                 <div>
@@ -852,25 +897,27 @@ export default function ClientsPage() {
                   </select>
                 </div>
 
-                {/* Trainer */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Assign Trainer
-                  </label>
-                  <select
-                    name="trainer_id"
-                    value={formData.trainer_id}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
-                  >
-                    <option value="">No trainer assigned</option>
-                    {trainers.map((trainer) => (
-                      <option key={trainer.id} value={trainer.id}>
-                        {trainer.first_name} {trainer.last_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {/* Trainer - Only show for Admin */}
+                {currentUser?.role === 'admin' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Assign Trainer
+                    </label>
+                    <select
+                      name="trainer_id"
+                      value={formData.trainer_id}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    >
+                      <option value="">No trainer assigned</option>
+                      {trainers.map((trainer) => (
+                        <option key={trainer.id} value={trainer.id}>
+                          {trainer.first_name} {trainer.last_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {/* Session Type */}
                 <div>

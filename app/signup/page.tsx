@@ -55,6 +55,22 @@ export default function SignupPage() {
     }
 
     try {
+      // For PT role, check if email exists in trainers table
+      if (role === 'pt') {
+        const { data: isRegistered, error: checkError } = await supabase
+          .rpc('is_pt_email_registered', { pt_email: email })
+
+        if (checkError) {
+          throw new Error('Failed to verify PT email. Please try again.')
+        }
+
+        if (!isRegistered) {
+          setError('This email is not registered as a Personal Trainer. Please contact your administrator to register your email first.')
+          setLoading(false)
+          return
+        }
+      }
+
       // Sign up the user with metadata
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -72,20 +88,7 @@ export default function SignupPage() {
       if (signUpError) throw signUpError
 
       if (data.user) {
-        // Update the user record with additional info
-        const { error: updateError } = await supabase
-          .from('users')
-          .update({
-            first_name: firstName,
-            last_name: lastName,
-            phone_number: phoneNumber,
-          })
-          .eq('id', data.user.id)
-
-        if (updateError) {
-          console.error('Error updating user info:', updateError)
-        }
-
+        // User record and trainer record (for PT) are automatically created by database trigger
         setSuccess(true)
         setShowEmailVerification(true)
         
@@ -95,7 +98,13 @@ export default function SignupPage() {
         }, 5000)
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to create account')
+      // Check if error is related to PT email validation
+      const errorMessage = err.message || 'Failed to create account'
+      if (errorMessage.includes('PT email not registered') || errorMessage.includes('not registered')) {
+        setError('This email is not registered as a Personal Trainer. Please contact your administrator to register your email first.')
+      } else {
+        setError(errorMessage)
+      }
     } finally {
       setLoading(false)
     }
