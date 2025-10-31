@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Search, Filter, Calendar, Plus, X, CheckCircle, User } from 'lucide-react'
+import { Search, Filter, Calendar, Plus, X, CheckCircle, User, Edit2 } from 'lucide-react'
 import type { Client, Trainer } from '@/types'
 
 export default function ClientsPage() {
@@ -12,12 +12,14 @@ export default function ClientsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
   const [showFilterMenu, setShowFilterMenu] = useState(false)
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [formLoading, setFormLoading] = useState(false)
   const [formError, setFormError] = useState('')
   const [formSuccess, setFormSuccess] = useState(false)
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const itemsPerPage = 10
 
   // Form state
@@ -88,8 +90,11 @@ export default function ClientsPage() {
 
     try {
       const clientId = generateClientId()
+      const firstPayment = formData.first_payment ? parseFloat(formData.first_payment) : 0
+      const balance = formData.balance ? parseFloat(formData.balance) : 0
       
-      const { error } = await supabase
+      // Insert client
+      const { data: clientData, error: clientError } = await supabase
         .from('clients')
         .insert([{
           client_id: clientId,
@@ -99,14 +104,34 @@ export default function ClientsPage() {
           age: formData.age ? parseInt(formData.age) : null,
           gender: formData.gender || null,
           trainer_id: formData.trainer_id || null,
-          first_payment: formData.first_payment ? parseFloat(formData.first_payment) : 0,
+          first_payment: firstPayment,
           payment_mode: formData.payment_mode || null,
-          balance: formData.balance ? parseFloat(formData.balance) : 0,
+          balance: balance,
           session_type: formData.session_type || null,
           status: formData.status
         }])
+        .select()
+        .single()
 
-      if (error) throw error
+      if (clientError) throw clientError
+
+      // If there's a first payment, also create a payment record
+      if (firstPayment > 0 && clientData) {
+        const { error: paymentError } = await supabase
+          .from('payments')
+          .insert([{
+            client_id: clientData.id,
+            amount_paid: firstPayment,
+            amount_pending: balance,
+            payment_date: new Date().toISOString(),
+            status: formData.status
+          }])
+
+        if (paymentError) {
+          console.error('Error creating payment record:', paymentError)
+          // Don't throw error here, client is already created
+        }
+      }
 
       setFormSuccess(true)
       setTimeout(() => {
@@ -137,6 +162,99 @@ export default function ClientsPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleEditClick = (client: Client) => {
+    setSelectedClient(client)
+    setFormData({
+      full_name: client.full_name,
+      email: client.email,
+      phone_number: client.phone_number || '',
+      age: client.age?.toString() || '',
+      gender: client.gender || '',
+      trainer_id: client.trainer_id || '',
+      first_payment: client.first_payment?.toString() || '',
+      payment_mode: client.payment_mode || '',
+      balance: client.balance?.toString() || '',
+      session_type: client.session_type || '',
+      status: client.status
+    })
+    setShowEditModal(true)
+  }
+
+  const handleUpdateClient = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedClient) return
+
+    setFormLoading(true)
+    setFormError('')
+    setFormSuccess(false)
+
+    try {
+      const firstPayment = formData.first_payment ? parseFloat(formData.first_payment) : 0
+      const balance = formData.balance ? parseFloat(formData.balance) : 0
+
+      // Update client
+      const { error: clientError } = await supabase
+        .from('clients')
+        .update({
+          full_name: formData.full_name,
+          email: formData.email,
+          phone_number: formData.phone_number || null,
+          age: formData.age ? parseInt(formData.age) : null,
+          gender: formData.gender || null,
+          trainer_id: formData.trainer_id || null,
+          first_payment: firstPayment,
+          payment_mode: formData.payment_mode || null,
+          balance: balance,
+          session_type: formData.session_type || null,
+          status: formData.status
+        })
+        .eq('id', selectedClient.id)
+
+      if (clientError) throw clientError
+
+      // Update payment record if it exists
+      const { data: existingPayment } = await supabase
+        .from('payments')
+        .select('id')
+        .eq('client_id', selectedClient.id)
+        .single()
+
+      if (existingPayment && firstPayment > 0) {
+        await supabase
+          .from('payments')
+          .update({
+            amount_paid: firstPayment,
+            amount_pending: balance,
+            status: formData.status
+          })
+          .eq('client_id', selectedClient.id)
+      } else if (!existingPayment && firstPayment > 0) {
+        // Create payment record if it doesn't exist
+        await supabase
+          .from('payments')
+          .insert([{
+            client_id: selectedClient.id,
+            amount_paid: firstPayment,
+            amount_pending: balance,
+            payment_date: new Date().toISOString(),
+            status: formData.status
+          }])
+      }
+
+      setFormSuccess(true)
+      setTimeout(() => {
+        setShowEditModal(false)
+        setFormSuccess(false)
+        setSelectedClient(null)
+        fetchClients()
+      }, 1500)
+    } catch (error: any) {
+      setFormError(error.message || 'Failed to update client')
+    } finally {
+      setFormLoading(false)
+    }
   }
 
   const filteredClients = clients.filter(client => {
@@ -261,18 +379,19 @@ export default function ClientsPage() {
               <th className="text-left p-4 text-sm font-medium text-gray-700">Email</th>
               <th className="text-left p-4 text-sm font-medium text-gray-700">1st Payment</th>
               <th className="text-left p-4 text-sm font-medium text-gray-700">Session Type</th>
+              <th className="text-left p-4 text-sm font-medium text-gray-700">Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} className="text-center p-8 text-gray-500">
+                <td colSpan={9} className="text-center p-8 text-gray-500">
                   Loading...
                 </td>
               </tr>
             ) : paginatedClients.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center p-8 text-gray-500">
+                <td colSpan={9} className="text-center p-8 text-gray-500">
                   No clients found
                 </td>
               </tr>
@@ -293,6 +412,15 @@ export default function ClientsPage() {
                   <td className="p-4 text-sm text-gray-600">{client.email}</td>
                   <td className="p-4 text-sm text-gray-600">₹{client.first_payment || 0}</td>
                   <td className="p-4 text-sm text-gray-600">{client.session_type || '-'}</td>
+                  <td className="p-4">
+                    <button
+                      onClick={() => handleEditClick(client)}
+                      className="p-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                      title="Edit client"
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                  </td>
                 </tr>
               ))
             )}
@@ -591,6 +719,268 @@ export default function ClientsPage() {
                   className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50"
                 >
                   {formLoading ? 'Adding...' : formSuccess ? 'Added!' : 'Add Client'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Client Modal */}
+      {showEditModal && selectedClient && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Edit Client
+                </h2>
+                <p className="text-sm text-gray-600">Update client details and payment information</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowEditModal(false)
+                  setSelectedClient(null)
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X size={24} className="text-gray-600" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleUpdateClient} className="p-6 space-y-6">
+              {formError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+                  {formError}
+                </div>
+              )}
+
+              {formSuccess && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <div>
+                      <p className="font-bold text-green-900">Client Updated Successfully!</p>
+                      <p className="text-sm text-green-700">Refreshing client list...</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Full Name */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="full_name"
+                    value={formData.full_name}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    placeholder="Enter full name"
+                    required
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    placeholder="client@example.com"
+                    required
+                  />
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    placeholder="+1 234 567 8900"
+                  />
+                </div>
+
+                {/* Age */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Age
+                  </label>
+                  <input
+                    type="number"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    placeholder="25"
+                    min="1"
+                    max="120"
+                  />
+                </div>
+
+                {/* Gender */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Gender
+                  </label>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                  >
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                {/* Trainer */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Assign Trainer
+                  </label>
+                  <select
+                    name="trainer_id"
+                    value={formData.trainer_id}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                  >
+                    <option value="">No trainer assigned</option>
+                    {trainers.map((trainer) => (
+                      <option key={trainer.id} value={trainer.id}>
+                        {trainer.first_name} {trainer.last_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Session Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Session Type
+                  </label>
+                  <select
+                    name="session_type"
+                    value={formData.session_type}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                  >
+                    <option value="">Select session type</option>
+                    <option value="1 month">1 Month</option>
+                    <option value="3 months">3 Months</option>
+                    <option value="6 months">6 Months</option>
+                    <option value="12 months">12 Months</option>
+                  </select>
+                </div>
+
+                {/* First Payment */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    First Payment (₹)
+                  </label>
+                  <input
+                    type="number"
+                    name="first_payment"
+                    value={formData.first_payment}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                {/* Payment Mode */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Payment Mode
+                  </label>
+                  <select
+                    name="payment_mode"
+                    value={formData.payment_mode}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                  >
+                    <option value="">Select payment mode</option>
+                    <option value="cash">Cash</option>
+                    <option value="upi">UPI</option>
+                    <option value="card">Card</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                {/* Balance */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Balance
+                  </label>
+                  <input
+                    type="number"
+                    name="balance"
+                    value={formData.balance}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    placeholder="0.00"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex gap-3 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditModal(false)
+                    setSelectedClient(null)
+                  }}
+                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={formLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={formLoading || formSuccess}
+                  className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50"
+                >
+                  {formLoading ? 'Updating...' : formSuccess ? 'Updated!' : 'Update Client'}
                 </button>
               </div>
             </form>
