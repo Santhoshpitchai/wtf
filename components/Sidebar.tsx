@@ -51,25 +51,27 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Menu Button */}
+      {/* Mobile Menu Button - Minimum 44x44px touch target */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 bg-white rounded-lg shadow-lg border border-gray-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+        aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
       >
         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Overlay for mobile */}
+      {/* Overlay for mobile - z-40 to sit below sidebar (z-50) but above content */}
       {isMobileMenuOpen && (
         <div
           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - z-50 to sit above overlay (z-40) */}
       <div className={`
-        fixed lg:static inset-y-0 left-0 z-40
+        fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
         w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col
         transform transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -96,7 +98,7 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors min-h-[44px] ${isActive
                   ? 'bg-gray-900 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
                   }`}
@@ -123,7 +125,8 @@ export default function Sidebar() {
               )}
               <button
                 onClick={handleLogout}
-                className="text-xs text-gray-500 hover:text-red-600 flex items-center gap-1 mt-2 transition-colors"
+                className="text-xs text-gray-500 hover:text-red-600 flex items-center gap-1 mt-2 transition-colors min-h-[44px] py-2"
+                aria-label="Logout"
               >
                 <LogOut size={12} />
                 <span>Logout</span>

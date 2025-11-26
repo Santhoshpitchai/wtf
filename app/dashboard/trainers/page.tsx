@@ -208,64 +208,72 @@ function TrainersPageContent() {
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-          <input
-            type="text"
-            placeholder="Search by name, email, or others..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
-          />
-        </div>
-        <div className="relative">
-          <button 
-            onClick={() => setShowFilterMenu(!showFilterMenu)}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-          >
-            <Filter size={20} />
-            Filters
-          </button>
+    <div className="p-4 md:p-6 lg:p-8">
+      {/* Header - Stack vertically on mobile */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
+          {/* Search Bar */}
+          <div className="relative flex-1 sm:max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Search by name, email, or others..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 min-h-[44px]"
+            />
+          </div>
+          
+          {/* Filter Button */}
+          <div className="relative">
+            <button 
+              onClick={() => setShowFilterMenu(!showFilterMenu)}
+              className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 min-w-[44px] min-h-[44px] w-full sm:w-auto"
+            >
+              <Filter size={20} />
+              <span>Filters</span>
+            </button>
           {showFilterMenu && (
             <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
               <div className="p-2">
                 <button
                   onClick={() => { setStatusFilter('all'); setShowFilterMenu(false) }}
-                  className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 ${statusFilter === 'all' ? 'bg-gray-100' : ''}`}
+                  className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 min-h-[44px] ${statusFilter === 'all' ? 'bg-gray-100' : ''}`}
                 >
                   All Status
                 </button>
                 <button
                   onClick={() => { setStatusFilter('active'); setShowFilterMenu(false) }}
-                  className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 ${statusFilter === 'active' ? 'bg-gray-100' : ''}`}
+                  className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 min-h-[44px] ${statusFilter === 'active' ? 'bg-gray-100' : ''}`}
                 >
                   Active Only
                 </button>
                 <button
                   onClick={() => { setStatusFilter('inactive'); setShowFilterMenu(false) }}
-                  className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 ${statusFilter === 'inactive' ? 'bg-gray-100' : ''}`}
+                  className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 min-h-[44px] ${statusFilter === 'inactive' ? 'bg-gray-100' : ''}`}
                 >
                   Inactive Only
                 </button>
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
-        <table className="w-full">
+      {/* Table - Horizontally scrollable on mobile */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px]">
           <thead className="border-b border-gray-200">
             <tr>
-              <th className="text-left p-4"><input type="checkbox" className="rounded" /></th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Personal Trainer</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">No of Clients</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Payments Collected</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Payments Pending</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Status</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Edit</th>
+              <th className="text-left p-3 md:p-4"><input type="checkbox" className="rounded" /></th>
+              <th className="text-left p-3 md:p-4 text-sm font-medium text-gray-700">Personal Trainer</th>
+              <th className="text-left p-3 md:p-4 text-sm font-medium text-gray-700">No of Clients</th>
+              <th className="text-left p-3 md:p-4 text-sm font-medium text-gray-700">Payments Collected</th>
+              <th className="text-left p-3 md:p-4 text-sm font-medium text-gray-700">Payments Pending</th>
+              <th className="text-left p-3 md:p-4 text-sm font-medium text-gray-700">Status</th>
+              <th className="text-left p-3 md:p-4 text-sm font-medium text-gray-700">Edit</th>
             </tr>
           </thead>
           <tbody>
@@ -282,8 +290,8 @@ function TrainersPageContent() {
             ) : (
               filteredTrainers.map((trainer) => (
                 <tr key={trainer.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="p-4"><input type="checkbox" className="rounded" /></td>
-                  <td className="p-4">
+                  <td className="p-3 md:p-4"><input type="checkbox" className="rounded" /></td>
+                  <td className="p-3 md:p-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
                         <span className="text-sm font-semibold text-gray-600">
@@ -293,10 +301,10 @@ function TrainersPageContent() {
                       <span className="text-sm text-gray-900">{trainer.first_name} {trainer.last_name}</span>
                     </div>
                   </td>
-                  <td className="p-4">
+                  <td className="p-3 md:p-4">
                     <button
                       onClick={() => handleViewClients(trainer)}
-                      className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+                      className="flex items-center gap-2 hover:text-blue-600 transition-colors min-w-[36px] min-h-[36px]"
                     >
                       <div className="flex -space-x-2">
                         {trainer.clients.slice(0, 4).map((client, i) => (
@@ -319,17 +327,17 @@ function TrainersPageContent() {
                       )}
                     </button>
                   </td>
-                  <td className="p-4 text-sm font-medium text-gray-900">₹{trainer.payments_collected?.toFixed(2) || '0.00'}</td>
-                  <td className="p-4 text-sm font-medium text-gray-900">₹{trainer.payments_pending?.toFixed(2) || '0.00'}</td>
-                  <td className="p-4">
+                  <td className="p-3 md:p-4 text-sm font-medium text-gray-900">₹{trainer.payments_collected?.toFixed(2) || '0.00'}</td>
+                  <td className="p-3 md:p-4 text-sm font-medium text-gray-900">₹{trainer.payments_pending?.toFixed(2) || '0.00'}</td>
+                  <td className="p-3 md:p-4">
                     <span className={`text-sm ${trainer.status === 'active' ? 'text-green-600' : 'text-red-600'}`}>
                       {trainer.status === 'active' ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="p-4">
+                  <td className="p-3 md:p-4">
                     <button 
                       onClick={() => handleEditClick(trainer)}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 hover:text-gray-600 min-w-[36px] min-h-[36px] flex items-center justify-center"
                     >
                       <MoreHorizontal size={20} />
                     </button>
@@ -338,27 +346,28 @@ function TrainersPageContent() {
               ))
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
 
       {/* Edit Trainer Modal */}
       {showEditModal && selectedTrainer && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-            <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-0 md:p-4">
+          <div className="bg-white md:rounded-2xl shadow-2xl w-full md:max-w-md h-full md:h-auto md:max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 md:px-6 py-4 flex items-center justify-between md:rounded-t-2xl">
               <div className="flex items-center gap-3">
                 <Edit2 className="w-5 h-5 text-gray-600" />
-                <h2 className="text-xl font-bold text-gray-900">Edit Trainer</h2>
+                <h2 className="text-lg md:text-xl font-bold text-gray-900">Edit Trainer</h2>
               </div>
               <button
                 onClick={() => setShowEditModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
-                <X size={20} className="text-gray-600" />
+                <X size={24} className="text-gray-600" />
               </button>
             </div>
 
-            <form onSubmit={handleUpdateTrainer} className="p-6 space-y-4">
+            <form onSubmit={handleUpdateTrainer} className="p-4 md:p-6 space-y-4">
               {formError && (
                 <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
                   {formError}
@@ -374,7 +383,7 @@ function TrainersPageContent() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     First Name <span className="text-red-500">*</span>
@@ -384,7 +393,7 @@ function TrainersPageContent() {
                     name="first_name"
                     value={editFormData.first_name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 min-h-[44px]"
                     required
                   />
                 </div>
@@ -397,7 +406,7 @@ function TrainersPageContent() {
                     name="last_name"
                     value={editFormData.last_name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 min-h-[44px]"
                     required
                   />
                 </div>
@@ -412,7 +421,7 @@ function TrainersPageContent() {
                   name="email"
                   value={editFormData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 min-h-[44px]"
                   required
                 />
               </div>
@@ -426,7 +435,7 @@ function TrainersPageContent() {
                   name="phone_number"
                   value={editFormData.phone_number}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 min-h-[44px]"
                 />
               </div>
 
@@ -438,28 +447,28 @@ function TrainersPageContent() {
                   name="status"
                   value={editFormData.status}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 min-h-[44px]"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
               </div>
 
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={() => handleDeleteClick(selectedTrainer)}
-                  className="px-6 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2"
+                  className="w-full sm:w-auto px-6 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2 min-h-[44px]"
                   disabled={formLoading}
                 >
                   <Trash2 size={18} />
                   Delete
                 </button>
-                <div className="flex-1 flex gap-3">
+                <div className="flex-1 flex flex-col sm:flex-row gap-3">
                   <button
                     type="button"
                     onClick={() => setShowEditModal(false)}
-                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px]"
                     disabled={formLoading}
                   >
                     Cancel
@@ -467,7 +476,7 @@ function TrainersPageContent() {
                   <button
                     type="submit"
                     disabled={formLoading || formSuccess}
-                    className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50"
+                    className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50 min-h-[44px]"
                   >
                     {formLoading ? 'Updating...' : formSuccess ? 'Updated!' : 'Update Trainer'}
                   </button>
@@ -480,27 +489,27 @@ function TrainersPageContent() {
 
       {/* View Clients Modal */}
       {showClientsModal && selectedTrainer && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-0 md:p-4">
+          <div className="bg-white md:rounded-2xl shadow-2xl w-full md:max-w-2xl h-full md:max-h-[80vh] overflow-hidden flex flex-col">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 md:px-6 py-4 flex items-center justify-between md:rounded-t-2xl">
               <div className="flex items-center gap-3">
-                <Users className="w-5 h-5 text-gray-600" />
+                <Users className="w-5 h-5 text-gray-600 flex-shrink-0" />
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">
+                  <h2 className="text-lg md:text-xl font-bold text-gray-900">
                     Clients - {selectedTrainer.first_name} {selectedTrainer.last_name}
                   </h2>
-                  <p className="text-sm text-gray-600">{selectedTrainer.client_count} total clients</p>
+                  <p className="text-xs md:text-sm text-gray-600">{selectedTrainer.client_count} total clients</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowClientsModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0"
               >
-                <X size={20} className="text-gray-600" />
+                <X size={24} className="text-gray-600" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6">
               {selectedTrainer.clients.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
                   <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
@@ -564,18 +573,18 @@ function TrainersPageContent() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && selectedTrainer && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-            <div className="p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-0 md:p-4">
+          <div className="bg-white md:rounded-2xl shadow-2xl w-full md:max-w-md h-full md:h-auto overflow-y-auto">
+            <div className="p-4 md:p-6">
               <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
                 <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
               
-              <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900 text-center mb-2">
                 Delete Trainer
               </h2>
               
-              <p className="text-gray-600 text-center mb-6">
+              <p className="text-sm md:text-base text-gray-600 text-center mb-6">
                 Are you sure you want to delete <span className="font-semibold">{selectedTrainer.first_name} {selectedTrainer.last_name}</span>?
                 {selectedTrainer.client_count > 0 && (
                   <span className="block mt-2 text-red-600 font-medium">
@@ -601,11 +610,11 @@ function TrainersPageContent() {
                 </div>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px]"
                   disabled={deleteLoading}
                 >
                   Cancel
@@ -614,7 +623,7 @@ function TrainersPageContent() {
                   type="button"
                   onClick={handleDeleteTrainer}
                   disabled={deleteLoading}
-                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-h-[44px]"
                 >
                   {deleteLoading ? (
                     <>

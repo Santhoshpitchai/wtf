@@ -48,16 +48,16 @@ function CreatePTPageContent() {
   }
 
   return (
-    <div className="p-8 max-w-4xl">
-      <h1 className="text-2xl font-bold mb-8">Create PT</h1>
+    <div className="p-4 md:p-6 lg:p-8 max-w-4xl">
+      <h1 className="text-xl md:text-2xl font-bold mb-6 md:mb-8">Create PT</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
         {/* PT Details */}
-        <div className="bg-white rounded-lg p-6 shadow">
-          <h2 className="text-lg font-semibold mb-4">PT Details</h2>
-          <p className="text-sm text-gray-500 mb-6">Confirm your details for our records</p>
+        <div className="bg-white rounded-lg p-4 md:p-6 shadow">
+          <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">PT Details</h2>
+          <p className="text-xs md:text-sm text-gray-500 mb-4 md:mb-6">Confirm your details for our records</p>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 First Name <span className="text-red-500">*</span>
@@ -68,7 +68,7 @@ function CreatePTPageContent() {
                 value={formData.first_name}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
               />
             </div>
             <div>
@@ -81,7 +81,7 @@ function CreatePTPageContent() {
                 value={formData.last_name}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
               />
             </div>
             <div>
@@ -94,7 +94,7 @@ function CreatePTPageContent() {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
               />
             </div>
             <div>
@@ -107,18 +107,18 @@ function CreatePTPageContent() {
                 value={formData.phone_number}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
               />
             </div>
           </div>
         </div>
 
         {/* Address */}
-        <div className="bg-white rounded-lg p-6 shadow">
-          <h2 className="text-lg font-semibold mb-4">Address</h2>
-          <p className="text-sm text-gray-500 mb-6">Confirm your details for our records</p>
+        <div className="bg-white rounded-lg p-4 md:p-6 shadow">
+          <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Address</h2>
+          <p className="text-xs md:text-sm text-gray-500 mb-4 md:mb-6">Confirm your details for our records</p>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Pin code <span className="text-red-500">*</span>
@@ -128,7 +128,7 @@ function CreatePTPageContent() {
                 name="pin_code"
                 value={formData.pin_code}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
               />
             </div>
             <div>
@@ -140,7 +140,7 @@ function CreatePTPageContent() {
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
               />
             </div>
             <div>
@@ -152,7 +152,7 @@ function CreatePTPageContent() {
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
               />
             </div>
             <div>
@@ -164,10 +164,10 @@ function CreatePTPageContent() {
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
               />
             </div>
-            <div className="col-span-2">
+            <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Address
               </label>
@@ -176,25 +176,25 @@ function CreatePTPageContent() {
                 value={formData.address}
                 onChange={handleChange}
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
               />
             </div>
           </div>
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <button
             type="submit"
             disabled={loading}
-            className="px-8 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50"
+            className="w-full sm:w-auto px-8 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 min-h-[44px]"
           >
             {loading ? 'Submitting...' : 'Submit'}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="px-8 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="w-full sm:w-auto px-8 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 min-h-[44px]"
           >
             Cancel
           </button>

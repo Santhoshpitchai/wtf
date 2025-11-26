@@ -16,6 +16,22 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+  /* Base font size for mobile: 14px */
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Responsive typography - increase base size on larger screens */
+@media (min-width: 768px) {
+  body {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 16px;
+  }
 }
 
 @layer utilities {

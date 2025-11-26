@@ -124,11 +124,11 @@ export default function LoginPage() {
         </div>
 
         {/* Left side - Login Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white relative z-10">
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-8 bg-white relative z-10">
           <div className="w-full max-w-md animate-fade-in">
             {/* Logo */}
-            <div className="mb-10">
-              <div className="w-56 h-28 flex items-center justify-center mx-auto bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-4 shadow-lg">
+            <div className="mb-8 md:mb-10">
+              <div className="w-40 h-20 sm:w-48 sm:h-24 md:w-56 md:h-28 flex items-center justify-center mx-auto bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-3 sm:p-4 shadow-lg">
                 <img
                   src="/wtf-logo-new.png"
                   alt="WTF - Witness The Fitness"
@@ -138,11 +138,11 @@ export default function LoginPage() {
             </div>
 
             {/* Role Selection */}
-            <div className="flex gap-3 mb-8 p-1 bg-gray-100 rounded-2xl">
+            <div className="flex flex-col sm:flex-row gap-3 mb-8 p-1 bg-gray-100 rounded-2xl">
               <button
                 type="button"
                 onClick={() => setRole('admin')}
-                className={`flex-1 py-3 rounded-xl font-bold text-sm uppercase tracking-wide transition-all duration-300 transform ${role === 'admin'
+                className={`flex-1 py-3.5 sm:py-3 rounded-xl font-bold text-sm uppercase tracking-wide transition-all duration-300 transform min-h-[44px] ${role === 'admin'
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg scale-105'
                   : 'text-gray-600 hover:text-gray-900'
                   }`}
@@ -157,7 +157,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setRole('pt')}
-                className={`flex-1 py-3 rounded-xl font-bold text-sm uppercase tracking-wide transition-all duration-300 transform ${role === 'pt'
+                className={`flex-1 py-3.5 sm:py-3 rounded-xl font-bold text-sm uppercase tracking-wide transition-all duration-300 transform min-h-[44px] ${role === 'pt'
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg scale-105'
                   : 'text-gray-600 hover:text-gray-900'
                   }`}
@@ -171,8 +171,8 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <h1 className="text-4xl font-black mb-2 text-gray-900">Login to your account</h1>
-            <p className="text-gray-500 text-sm mb-8">Welcome back! Please enter your details</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black mb-2 text-gray-900">Login to your account</h1>
+            <p className="text-gray-500 text-sm md:text-base mb-6 md:mb-8">Welcome back! Please enter your details</p>
 
             {error && (
               <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg text-sm animate-shake">
@@ -185,51 +185,51 @@ export default function LoginPage() {
               </div>
             )}
 
-            <form onSubmit={handleLogin} className="space-y-5">
+            <form onSubmit={handleLogin} className="space-y-4 md:space-y-5">
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                <label className="block text-sm md:text-base font-semibold text-gray-700 mb-2">Email</label>
                 <input
                   type="email"
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 group-hover:border-gray-300"
+                  className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 group-hover:border-gray-300 min-h-[44px] text-sm md:text-base"
                   required
                 />
               </div>
 
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                <label className="block text-sm md:text-base font-semibold text-gray-700 mb-2">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 group-hover:border-gray-300"
+                    className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 group-hover:border-gray-300 min-h-[44px] text-sm md:text-base"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors p-1 rounded-lg hover:bg-blue-50"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors p-2 rounded-lg hover:bg-blue-50 min-w-[44px] min-h-[44px] flex items-center justify-center"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer group">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+                <label className="flex items-center gap-2 cursor-pointer group min-h-[44px]">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-5 h-5 rounded-lg border-2 border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
                   />
-                  <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900 transition-colors">Remember me</span>
+                  <span className="text-sm md:text-base font-medium text-gray-600 group-hover:text-gray-900 transition-colors">Remember me</span>
                 </label>
-                <Link href="/forgot-password" className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                <Link href="/forgot-password" className="text-sm md:text-base font-semibold text-blue-600 hover:text-blue-700 transition-colors min-h-[44px] flex items-center">
                   Forgot Password?
                 </Link>
               </div>
@@ -237,10 +237,10 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || !isFormValid}
-                className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full py-4 rounded-xl font-bold text-sm md:text-base text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] min-h-[44px]"
               >
                 {loading ? (
-                  <span className="flex items-center justify-center gap-2">
+                  <span className="flex items-center justify-center gap-2 text-sm md:text-base">
                     <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -253,8 +253,8 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-8 text-center">
-              <p className="text-sm text-gray-600">
+            <div className="mt-6 md:mt-8 text-center">
+              <p className="text-sm md:text-base text-gray-600">
                 Don't have an account?{' '}
                 <Link href="/signup" className="font-bold text-blue-600 hover:text-blue-700 transition-colors">
                   Sign up for free
@@ -279,13 +279,13 @@ export default function LoginPage() {
                 </svg>
               </div>
             </div>
-            <h2 className="text-5xl font-black mb-6 leading-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 leading-tight">
               The perfect analytics tool
               <span className="block bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 for your business
               </span>
             </h2>
-            <p className="text-xl text-slate-400 mb-10 leading-relaxed">
+            <p className="text-base md:text-lg lg:text-xl text-slate-400 mb-10 leading-relaxed">
               Track progress, manage clients, and achieve goals with powerful real-time analytics and insights
             </p>
             <div className="flex gap-3 justify-center">

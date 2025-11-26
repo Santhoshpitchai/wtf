@@ -79,23 +79,27 @@ export default function PaymentsPage() {
   const totalPending = filteredClients.reduce((sum, client) => sum + (client.balance || 0), 0)
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search by name, ID, or phone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
-            />
-          </div>
-          <div className="relative">
+    <div className="p-4 md:p-6 lg:p-8">
+      {/* Search and Filter Controls - Stack vertically on mobile */}
+      <div className="flex flex-col gap-4 mb-6">
+        {/* Search Bar */}
+        <div className="relative w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="Search by name, ID, or phone..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 text-sm md:text-base"
+          />
+        </div>
+
+        {/* Filter and Date Range - Stack on mobile, inline on larger screens */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1 sm:flex-initial">
             <button 
               onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm md:text-base"
             >
               <Filter size={20} />
               Filters
@@ -104,7 +108,7 @@ export default function PaymentsPage() {
               )}
             </button>
             {showFilterMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+              <div className="absolute left-0 sm:right-0 sm:left-auto mt-2 w-full sm:w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                 <div className="p-2">
                   <div className="text-xs font-semibold text-gray-500 px-3 py-2">Status</div>
                   <button
@@ -129,7 +133,9 @@ export default function PaymentsPage() {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg">
+
+          {/* Date Range Picker - Hidden on mobile, visible on md+ */}
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg">
             <Calendar size={20} />
             <input
               type="date"
@@ -148,75 +154,77 @@ export default function PaymentsPage() {
             />
           </div>
         </div>
+
+        {/* Add Client Button - Full width on mobile */}
         <button 
           onClick={() => router.push('/dashboard/clients')}
-          className="flex items-center gap-2 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors text-sm md:text-base font-medium"
         >
           <Plus size={20} />
           Add Client
         </button>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-600 mb-2">Total Collected</div>
-          <div className="text-3xl font-bold text-green-600">₹{totalCollected.toFixed(2)}</div>
+      {/* Summary Cards - 1 column on mobile, 2 on tablet, 3 on desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
+        <div className="bg-white rounded-lg shadow p-4 md:p-6">
+          <div className="text-xs md:text-sm text-gray-600 mb-2">Total Collected</div>
+          <div className="text-xl md:text-2xl lg:text-3xl font-bold text-green-600">₹{totalCollected.toFixed(2)}</div>
           <div className="text-xs text-gray-500 mt-1">{filteredClients.length} clients</div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-600 mb-2">Total Pending</div>
-          <div className="text-3xl font-bold text-orange-600">₹{totalPending.toFixed(2)}</div>
+        <div className="bg-white rounded-lg shadow p-4 md:p-6">
+          <div className="text-xs md:text-sm text-gray-600 mb-2">Total Pending</div>
+          <div className="text-xl md:text-2xl lg:text-3xl font-bold text-orange-600">₹{totalPending.toFixed(2)}</div>
           <div className="text-xs text-gray-500 mt-1">Outstanding balance</div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-600 mb-2">Active Clients</div>
-          <div className="text-3xl font-bold text-blue-600">{filteredClients.filter(c => c.status === 'active').length}</div>
+        <div className="bg-white rounded-lg shadow p-4 md:p-6">
+          <div className="text-xs md:text-sm text-gray-600 mb-2">Active Clients</div>
+          <div className="text-xl md:text-2xl lg:text-3xl font-bold text-blue-600">{filteredClients.filter(c => c.status === 'active').length}</div>
           <div className="text-xs text-gray-500 mt-1">of {filteredClients.length} total</div>
         </div>
       </div>
 
-      {/* Payments Table */}
-      <div className="bg-white rounded-lg shadow">
-        <table className="w-full">
+      {/* Payments Table - Horizontal scroll container on mobile */}
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
+        <table className="w-full min-w-[800px]">
           <thead className="border-b border-gray-200">
             <tr>
-              <th className="text-left p-4"><input type="checkbox" className="rounded" /></th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Client ID</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Date</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Full Name</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Contact Number</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">1st Payment</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Pending Payment</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Status</th>
+              <th className="text-left p-3 md:p-4"><input type="checkbox" className="rounded" /></th>
+              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Client ID</th>
+              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Date</th>
+              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Full Name</th>
+              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Contact Number</th>
+              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">1st Payment</th>
+              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Pending Payment</th>
+              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Status</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} className="text-center p-8 text-gray-500">Loading...</td>
+                <td colSpan={8} className="text-center p-8 text-gray-500 text-sm md:text-base">Loading...</td>
               </tr>
             ) : filteredClients.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center p-8 text-gray-500">
+                <td colSpan={8} className="text-center p-8 text-gray-500 text-sm md:text-base">
                   {searchTerm || statusFilter !== 'all' || dateRange.start ? 'No payments match your search' : 'No payments found'}
                 </td>
               </tr>
             ) : (
               filteredClients.map((client) => (
                 <tr key={client.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="p-4"><input type="checkbox" className="rounded" /></td>
-                  <td className="p-4">
-                    <span className="text-blue-600 font-medium">{client.client_id}</span>
+                  <td className="p-3 md:p-4"><input type="checkbox" className="rounded" /></td>
+                  <td className="p-3 md:p-4">
+                    <span className="text-blue-600 font-medium text-xs md:text-sm">{client.client_id}</span>
                   </td>
-                  <td className="p-4 text-sm text-gray-600">
+                  <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">
                     {new Date(client.created_at).toLocaleDateString()}
                   </td>
-                  <td className="p-4 text-sm text-gray-900">{client.full_name}</td>
-                  <td className="p-4 text-sm text-gray-600">{client.phone_number || '-'}</td>
-                  <td className="p-4 text-sm font-medium text-green-600">₹{client.first_payment || 0}</td>
-                  <td className="p-4 text-sm font-medium text-orange-600">₹{client.balance || 0}</td>
-                  <td className="p-4">
+                  <td className="p-3 md:p-4 text-xs md:text-sm text-gray-900">{client.full_name}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">{client.phone_number || '-'}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm font-medium text-green-600">₹{client.first_payment || 0}</td>
+                  <td className="p-3 md:p-4 text-xs md:text-sm font-medium text-orange-600">₹{client.balance || 0}</td>
+                  <td className="p-3 md:p-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       client.status === 'active' 
                         ? 'bg-green-100 text-green-700' 

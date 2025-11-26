@@ -327,172 +327,185 @@ export default function ClientsPage() {
   const paginatedClients = filteredClients.slice(startIndex, startIndex + itemsPerPage)
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+        {/* Search and Filter Controls - Stack vertically on mobile */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
+          {/* Search Bar */}
+          <div className="relative flex-1 sm:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
               placeholder="Search by ID, product, or others..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm md:text-base"
             />
           </div>
-          <div className="relative">
-            <button 
-              onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              <Filter size={20} />
-              Filters
-              {statusFilter !== 'all' && (
-                <span className="ml-1 px-2 py-0.5 bg-teal-500 text-white text-xs rounded-full">1</span>
-              )}
-            </button>
-            {showFilterMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                <div className="p-2">
-                  <div className="text-xs font-semibold text-gray-500 px-3 py-2">Status</div>
-                  <button
-                    onClick={() => { setStatusFilter('all'); setShowFilterMenu(false) }}
-                    className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'all' ? 'bg-gray-100 font-medium' : ''}`}
-                  >
-                    All Status
-                  </button>
-                  <button
-                    onClick={() => { setStatusFilter('active'); setShowFilterMenu(false) }}
-                    className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'active' ? 'bg-gray-100 font-medium' : ''}`}
-                  >
-                    Active Only
-                  </button>
-                  <button
-                    onClick={() => { setStatusFilter('inactive'); setShowFilterMenu(false) }}
-                    className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'inactive' ? 'bg-gray-100 font-medium' : ''}`}
-                  >
-                    Inactive Only
-                  </button>
+          
+          {/* Filter and Date Controls Row */}
+          <div className="flex items-center gap-3">
+            {/* Filter Button */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowFilterMenu(!showFilterMenu)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 whitespace-nowrap text-sm md:text-base"
+              >
+                <Filter size={20} />
+                <span className="hidden sm:inline">Filters</span>
+                {statusFilter !== 'all' && (
+                  <span className="ml-1 px-2 py-0.5 bg-teal-500 text-white text-xs rounded-full">1</span>
+                )}
+              </button>
+              {showFilterMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                  <div className="p-2">
+                    <div className="text-xs font-semibold text-gray-500 px-3 py-2">Status</div>
+                    <button
+                      onClick={() => { setStatusFilter('all'); setShowFilterMenu(false) }}
+                      className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'all' ? 'bg-gray-100 font-medium' : ''}`}
+                    >
+                      All Status
+                    </button>
+                    <button
+                      onClick={() => { setStatusFilter('active'); setShowFilterMenu(false) }}
+                      className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'active' ? 'bg-gray-100 font-medium' : ''}`}
+                    >
+                      Active Only
+                    </button>
+                    <button
+                      onClick={() => { setStatusFilter('inactive'); setShowFilterMenu(false) }}
+                      className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'inactive' ? 'bg-gray-100 font-medium' : ''}`}
+                    >
+                      Inactive Only
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg">
-            <Calendar size={20} />
-            <input
-              type="date"
-              value={dateRange.start}
-              onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-              className="border-none focus:outline-none text-sm"
-              placeholder="Start date"
-            />
-            <span>-</span>
-            <input
-              type="date"
-              value={dateRange.end}
-              onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-              className="border-none focus:outline-none text-sm"
-              placeholder="End date"
-            />
+              )}
+            </div>
+            
+            {/* Date Range Picker - Hidden on mobile */}
+            <div className="hidden md:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg">
+              <Calendar size={20} />
+              <input
+                type="date"
+                value={dateRange.start}
+                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                className="border-none focus:outline-none text-sm"
+                placeholder="Start date"
+              />
+              <span>-</span>
+              <input
+                type="date"
+                value={dateRange.end}
+                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                className="border-none focus:outline-none text-sm"
+                placeholder="End date"
+              />
+            </div>
           </div>
         </div>
+        
+        {/* Add Client Button - Full width on mobile */}
         <button 
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors text-sm md:text-base font-medium"
         >
           <Plus size={20} />
           Add Client
         </button>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-lg shadow">
-        <table className="w-full">
-          <thead className="border-b border-gray-200">
-            <tr>
-              <th className="text-left p-4">
-                <input type="checkbox" className="rounded" />
-              </th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Client ID</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Date</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Full Name</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Age</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Email</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">1st Payment</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Session Type</th>
-              <th className="text-left p-4 text-sm font-medium text-gray-700">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+      {/* Table - Horizontally scrollable on mobile */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px]">
+            <thead className="border-b border-gray-200">
               <tr>
-                <td colSpan={9} className="text-center p-8 text-gray-500">
-                  Loading...
-                </td>
+                <th className="text-left p-3 md:p-4">
+                  <input type="checkbox" className="rounded" />
+                </th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Client ID</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Date</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Full Name</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Age</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Email</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">1st Payment</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Session Type</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Actions</th>
               </tr>
-            ) : paginatedClients.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="text-center p-8 text-gray-500">
-                  No clients found
-                </td>
-              </tr>
-            ) : (
-              paginatedClients.map((client) => (
-                <tr key={client.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="p-4">
-                    <input type="checkbox" className="rounded" />
-                  </td>
-                  <td className="p-4">
-                    <span className="text-blue-600 font-medium">{client.client_id}</span>
-                  </td>
-                  <td className="p-4 text-sm text-gray-600">
-                    {new Date(client.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="p-4 text-sm text-gray-900">{client.full_name}</td>
-                  <td className="p-4 text-sm text-gray-600">{client.age || '-'}</td>
-                  <td className="p-4 text-sm text-gray-600">{client.email}</td>
-                  <td className="p-4 text-sm text-gray-600">₹{client.first_payment || 0}</td>
-                  <td className="p-4 text-sm text-gray-600">{client.session_type || '-'}</td>
-                  <td className="p-4">
-                    <button
-                      onClick={() => handleEditClick(client)}
-                      className="p-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
-                      title="Edit client"
-                    >
-                      <Edit2 size={18} />
-                    </button>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="text-center p-8 text-gray-500 text-sm md:text-base">
+                    Loading...
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : paginatedClients.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="text-center p-8 text-gray-500 text-sm md:text-base">
+                    No clients found
+                  </td>
+                </tr>
+              ) : (
+                paginatedClients.map((client) => (
+                  <tr key={client.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="p-3 md:p-4">
+                      <input type="checkbox" className="rounded" />
+                    </td>
+                    <td className="p-3 md:p-4">
+                      <span className="text-blue-600 font-medium text-xs md:text-sm">{client.client_id}</span>
+                    </td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">
+                      {new Date(client.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-900">{client.full_name}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">{client.age || '-'}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">{client.email}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">₹{client.first_payment || 0}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">{client.session_type || '-'}</td>
+                    <td className="p-3 md:p-4">
+                      <button
+                        onClick={() => handleEditClick(client)}
+                        className="p-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors min-w-[36px] min-h-[36px]"
+                        title="Edit client"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between p-4 border-t border-gray-200">
+        {/* Pagination - Optimized for mobile */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border-t border-gray-200">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Show result</span>
-            <select className="border border-gray-300 rounded px-2 py-1 text-sm">
+            <span className="text-xs md:text-sm text-gray-600">Show result</span>
+            <select className="border border-gray-300 rounded px-2 py-1 text-xs md:text-sm">
               <option>1</option>
               <option>10</option>
               <option>20</option>
               <option>50</option>
             </select>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+              className="px-2 sm:px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 min-w-[36px] min-h-[36px]"
             >
               &lt;
             </button>
-            {[...Array(Math.min(5, totalPages))].map((_, i) => (
+            {[...Array(Math.min(3, totalPages))].map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 border rounded ${
+                className={`px-2 sm:px-3 py-1 border rounded min-w-[36px] min-h-[36px] ${
                   currentPage === i + 1
                     ? 'bg-primary text-white border-primary'
                     : 'border-gray-300 hover:bg-gray-50'
@@ -501,10 +514,25 @@ export default function ClientsPage() {
                 {i + 1}
               </button>
             ))}
+            {totalPages > 3 && (
+              <>
+                <span className="px-1">...</span>
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  className={`px-2 sm:px-3 py-1 border rounded min-w-[36px] min-h-[36px] ${
+                    currentPage === totalPages
+                      ? 'bg-primary text-white border-primary'
+                      : 'border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+              className="px-2 sm:px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 min-w-[36px] min-h-[36px]"
             >
               &gt;
             </button>
@@ -514,28 +542,28 @@ export default function ClientsPage() {
 
       {/* Add Client Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-0 md:p-4">
+          <div className="bg-white md:rounded-2xl shadow-2xl w-full md:max-w-2xl h-full md:h-auto md:max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 md:px-6 py-4 flex items-center justify-between md:rounded-t-2xl">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-base md:text-lg lg:text-xl font-bold text-gray-900">
                   Add New Client
                 </h2>
-                <p className="text-sm text-gray-600">Fill in the client details below</p>
+                <p className="text-xs md:text-sm text-gray-600">Fill in the client details below</p>
               </div>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
                 <X size={24} className="text-gray-600" />
               </button>
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleAddClient} className="p-6 space-y-4">
+            <form onSubmit={handleAddClient} className="p-4 md:p-6 space-y-4">
               {formError && (
-                <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-600 text-sm">
+                <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-600 text-sm md:text-base">
                   {formError}
                 </div>
               )}
@@ -545,8 +573,8 @@ export default function ClientsPage() {
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <div>
-                      <p className="font-bold text-green-900">Client Added Successfully!</p>
-                      <p className="text-sm text-green-700">Refreshing client list...</p>
+                      <p className="font-bold text-green-900 text-sm md:text-base">Client Added Successfully!</p>
+                      <p className="text-xs md:text-sm text-green-700">Refreshing client list...</p>
                     </div>
                   </div>
                 </div>
@@ -556,7 +584,7 @@ export default function ClientsPage() {
                 {/* Note: PT users will have clients auto-assigned to them */}
                 {/* Full Name */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm md:text-base font-medium text-gray-700 mb-2">
                     Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -564,7 +592,7 @@ export default function ClientsPage() {
                     name="full_name"
                     value={formData.full_name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px] text-sm md:text-base"
                     placeholder="Enter full name"
                     required
                   />
@@ -572,7 +600,7 @@ export default function ClientsPage() {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm md:text-base font-medium text-gray-700 mb-2">
                     Email <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -580,7 +608,7 @@ export default function ClientsPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px] text-sm md:text-base"
                     placeholder="client@example.com"
                     required
                   />
@@ -588,7 +616,7 @@ export default function ClientsPage() {
 
                 {/* Phone Number */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm md:text-base font-medium text-gray-700 mb-2">
                     Phone Number
                   </label>
                   <input
@@ -596,7 +624,7 @@ export default function ClientsPage() {
                     name="phone_number"
                     value={formData.phone_number}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px] text-sm md:text-base"
                     placeholder="+1 234 567 8900"
                   />
                 </div>
@@ -611,7 +639,7 @@ export default function ClientsPage() {
                     name="age"
                     value={formData.age}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                     placeholder="25"
                     min="1"
                     max="120"
@@ -627,7 +655,7 @@ export default function ClientsPage() {
                     name="gender"
                     value={formData.gender}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                   >
                     <option value="">Select gender</option>
                     <option value="male">Male</option>
@@ -646,7 +674,7 @@ export default function ClientsPage() {
                       name="trainer_id"
                       value={formData.trainer_id}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                     >
                       <option value="">No trainer assigned</option>
                       {trainers.map((trainer) => (
@@ -667,7 +695,7 @@ export default function ClientsPage() {
                     name="session_type"
                     value={formData.session_type}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                   >
                     <option value="">Select session type</option>
                     <option value="1 month">1 Month</option>
@@ -687,7 +715,7 @@ export default function ClientsPage() {
                     name="first_payment"
                     value={formData.first_payment}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                     placeholder="0.00"
                     min="0"
                     step="0.01"
@@ -703,7 +731,7 @@ export default function ClientsPage() {
                     name="payment_mode"
                     value={formData.payment_mode}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                   >
                     <option value="">Select payment mode</option>
                     <option value="cash">Cash</option>
@@ -724,7 +752,7 @@ export default function ClientsPage() {
                     name="balance"
                     value={formData.balance}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                     placeholder="0.00"
                     min="0"
                     step="0.01"
@@ -740,7 +768,7 @@ export default function ClientsPage() {
                     name="status"
                     value={formData.status}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -753,7 +781,7 @@ export default function ClientsPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px]"
                   disabled={formLoading}
                 >
                   Cancel
@@ -761,7 +789,7 @@ export default function ClientsPage() {
                 <button
                   type="submit"
                   disabled={formLoading || formSuccess}
-                  className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50"
+                  className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50 min-h-[44px]"
                 >
                   {formLoading ? 'Adding...' : formSuccess ? 'Added!' : 'Add Client'}
                 </button>
@@ -773,29 +801,29 @@ export default function ClientsPage() {
 
       {/* Edit Client Modal */}
       {showEditModal && selectedClient && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-0 md:p-4">
+          <div className="bg-white md:rounded-2xl shadow-2xl w-full md:max-w-2xl h-full md:h-auto md:max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 md:px-6 py-4 flex items-center justify-between md:rounded-t-2xl">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-lg md:text-xl font-bold text-gray-900">
                   Edit Client
                 </h2>
-                <p className="text-sm text-gray-600">Update client details and payment information</p>
+                <p className="text-xs md:text-sm text-gray-600">Update client details and payment information</p>
               </div>
               <button
                 onClick={() => {
                   setShowEditModal(false)
                   setSelectedClient(null)
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
                 <X size={24} className="text-gray-600" />
               </button>
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleUpdateClient} className="p-6 space-y-6">
+            <form onSubmit={handleUpdateClient} className="p-4 md:p-6 space-y-6">
               {formError && (
                 <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
                   {formError}
@@ -825,7 +853,7 @@ export default function ClientsPage() {
                     name="full_name"
                     value={formData.full_name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                     placeholder="Enter full name"
                     required
                   />
@@ -841,7 +869,7 @@ export default function ClientsPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                     placeholder="client@example.com"
                     required
                   />
@@ -857,7 +885,7 @@ export default function ClientsPage() {
                     name="phone_number"
                     value={formData.phone_number}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                     placeholder="+1 234 567 8900"
                   />
                 </div>
@@ -872,7 +900,7 @@ export default function ClientsPage() {
                     name="age"
                     value={formData.age}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                     placeholder="25"
                     min="1"
                     max="120"
@@ -888,7 +916,7 @@ export default function ClientsPage() {
                     name="gender"
                     value={formData.gender}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                   >
                     <option value="">Select gender</option>
                     <option value="male">Male</option>
@@ -907,7 +935,7 @@ export default function ClientsPage() {
                       name="trainer_id"
                       value={formData.trainer_id}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                     >
                       <option value="">No trainer assigned</option>
                       {trainers.map((trainer) => (
@@ -928,7 +956,7 @@ export default function ClientsPage() {
                     name="session_type"
                     value={formData.session_type}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                   >
                     <option value="">Select session type</option>
                     <option value="1 month">1 Month</option>
@@ -948,7 +976,7 @@ export default function ClientsPage() {
                     name="first_payment"
                     value={formData.first_payment}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                     placeholder="0.00"
                     min="0"
                     step="0.01"
@@ -964,7 +992,7 @@ export default function ClientsPage() {
                     name="payment_mode"
                     value={formData.payment_mode}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                   >
                     <option value="">Select payment mode</option>
                     <option value="cash">Cash</option>
@@ -985,7 +1013,7 @@ export default function ClientsPage() {
                     name="balance"
                     value={formData.balance}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                     placeholder="0.00"
                     min="0"
                     step="0.01"
@@ -1001,7 +1029,7 @@ export default function ClientsPage() {
                     name="status"
                     value={formData.status}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 focus:border-gray-400 min-h-[44px]"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -1017,7 +1045,7 @@ export default function ClientsPage() {
                     setShowEditModal(false)
                     setSelectedClient(null)
                   }}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px]"
                   disabled={formLoading}
                 >
                   Cancel
@@ -1025,7 +1053,7 @@ export default function ClientsPage() {
                 <button
                   type="submit"
                   disabled={formLoading || formSuccess}
-                  className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50"
+                  className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50 min-h-[44px]"
                 >
                   {formLoading ? 'Updating...' : formSuccess ? 'Updated!' : 'Update Client'}
                 </button>

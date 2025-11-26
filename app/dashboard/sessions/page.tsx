@@ -187,93 +187,90 @@ export default function SessionsPage() {
   return (
     <div className="p-4 md:p-6 lg:p-8">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-        {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
-          {/* Search */}
-          <div className="relative flex-1 max-w-full sm:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search by ID, product, or others..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
-            />
-          </div>
-          
-          {/* Filters and Date Range */}
-          <div className="flex items-center gap-2">
-            <div className="relative">
+      <div className="flex flex-col gap-4 mb-6">
+        {/* Search - Full width on mobile */}
+        <div className="relative w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="Search by ID, name, or session type..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base"
+          />
+        </div>
+        
+        {/* Filters and Date Range - Stack on mobile */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="relative flex-1 sm:flex-initial">
             <button 
               onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors min-h-[44px]"
             >
               <Filter size={20} />
-              Filters
+              <span className="text-sm md:text-base">Filters</span>
               {statusFilter !== 'all' && (
                 <span className="ml-1 px-2 py-0.5 bg-teal-500 text-white text-xs rounded-full">1</span>
               )}
             </button>
             {showFilterMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+              <div className="absolute left-0 sm:right-0 sm:left-auto mt-2 w-full sm:w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                 <div className="p-2">
                   <div className="text-xs font-semibold text-gray-500 px-3 py-2">Status</div>
                   <button
                     onClick={() => { setStatusFilter('all'); setShowFilterMenu(false) }}
-                    className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'all' ? 'bg-gray-100 font-medium' : ''}`}
+                    className={`w-full text-left px-3 py-2.5 rounded hover:bg-gray-100 text-sm min-h-[44px] flex items-center ${statusFilter === 'all' ? 'bg-gray-100 font-medium' : ''}`}
                   >
                     All Status
                   </button>
                   <button
                     onClick={() => { setStatusFilter('confirmed'); setShowFilterMenu(false) }}
-                    className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'confirmed' ? 'bg-gray-100 font-medium' : ''}`}
+                    className={`w-full text-left px-3 py-2.5 rounded hover:bg-gray-100 text-sm min-h-[44px] flex items-center ${statusFilter === 'confirmed' ? 'bg-gray-100 font-medium' : ''}`}
                   >
                     Confirmed
                   </button>
                   <button
                     onClick={() => { setStatusFilter('booked'); setShowFilterMenu(false) }}
-                    className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'booked' ? 'bg-gray-100 font-medium' : ''}`}
+                    className={`w-full text-left px-3 py-2.5 rounded hover:bg-gray-100 text-sm min-h-[44px] flex items-center ${statusFilter === 'booked' ? 'bg-gray-100 font-medium' : ''}`}
                   >
                     Booked
                   </button>
                   <button
                     onClick={() => { setStatusFilter('pending'); setShowFilterMenu(false) }}
-                    className={`w-full text-left px-3 py-2 rounded hover:bg-gray-100 text-sm ${statusFilter === 'pending' ? 'bg-gray-100 font-medium' : ''}`}
+                    className={`w-full text-left px-3 py-2.5 rounded hover:bg-gray-100 text-sm min-h-[44px] flex items-center ${statusFilter === 'pending' ? 'bg-gray-100 font-medium' : ''}`}
                   >
                     Pending
                   </button>
                 </div>
               </div>
             )}
-            </div>
-            
-            {/* Date Range - Hidden on mobile */}
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg whitespace-nowrap">
-              <Calendar size={18} className="flex-shrink-0" />
-              <input
-                type="date"
-                value={dateRange.start}
-                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                className="border-none focus:outline-none text-sm w-28"
-                placeholder="Start date"
-              />
-              <span className="text-gray-400">-</span>
-              <input
-                type="date"
-                value={dateRange.end}
-                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                className="border-none focus:outline-none text-sm w-28"
-                placeholder="End date"
-              />
-            </div>
+          </div>
+          
+          {/* Date Range - Hidden on mobile, shown on tablet+ */}
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg whitespace-nowrap">
+            <Calendar size={18} className="flex-shrink-0" />
+            <input
+              type="date"
+              value={dateRange.start}
+              onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+              className="border-none focus:outline-none text-sm w-28"
+              placeholder="Start date"
+            />
+            <span className="text-gray-400">-</span>
+            <input
+              type="date"
+              value={dateRange.end}
+              onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+              className="border-none focus:outline-none text-sm w-28"
+              placeholder="End date"
+            />
           </div>
         </div>
         
-        {/* Add Client Button */}
+        {/* Add Client Button - Full width on mobile */}
         <button 
           onClick={() => router.push('/dashboard/clients')}
-          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors min-h-[44px] font-medium"
         >
           <Plus size={20} />
           <span>Add Client</span>
@@ -281,65 +278,71 @@ export default function SessionsPage() {
       </div>
 
       {/* Table Container with Horizontal Scroll on Mobile */}
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
-        <table className="w-full min-w-[800px]">
-          <thead className="border-b border-gray-200 bg-gray-50">
-            <tr>
-              <th className="text-left p-3 md:p-4"><input type="checkbox" className="rounded" /></th>
-              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Client ID</th>
-              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Session Date</th>
-              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Full Name</th>
-              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Contact Number</th>
-              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Session Type</th>
-              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Total Duration</th>
-              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Remaining Days</th>
-              <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px]">
+            <thead className="border-b border-gray-200 bg-gray-50">
               <tr>
-                <td colSpan={9} className="text-center p-8 text-gray-500">Loading...</td>
+                <th className="text-left p-3 md:p-4">
+                  <input type="checkbox" className="rounded w-4 h-4 cursor-pointer" />
+                </th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Client ID</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Session Date</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Full Name</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Contact Number</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Session Type</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Total Duration</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Remaining Days</th>
+                <th className="text-left p-3 md:p-4 text-xs md:text-sm font-medium text-gray-700">Status</th>
               </tr>
-            ) : filteredSessions.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="text-center p-8 text-gray-500">No sessions found</td>
-              </tr>
-            ) : (
-              filteredSessions.map((session) => (
-                <tr key={session.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td className="p-3 md:p-4"><input type="checkbox" className="rounded" /></td>
-                  <td className="p-3 md:p-4">
-                    <span className="text-blue-600 font-medium text-xs md:text-sm">{session.client_id}</span>
-                  </td>
-                  <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">
-                    {new Date(session.session_date).toLocaleDateString('en-US', { 
-                      day: '2-digit', 
-                      month: '2-digit', 
-                      year: 'numeric' 
-                    })}
-                  </td>
-                  <td className="p-3 md:p-4 text-xs md:text-sm text-gray-900 font-medium">{session.full_name}</td>
-                  <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">{session.phone_number || 'N/A'}</td>
-                  <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">{session.session_type}</td>
-                  <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600 font-medium">{session.total_duration}</td>
-                  <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600 font-medium">{session.remaining_days}</td>
-                  <td className="p-3 md:p-4">
-                    <select
-                      value={session.status}
-                      onChange={(e) => handleStatusChange(session.id, e.target.value as 'booked' | 'confirmed' | 'pending')}
-                      className={`text-xs md:text-sm border-none focus:outline-none cursor-pointer font-medium ${getStatusColor(session.status)} bg-transparent`}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="booked">Booked</option>
-                      <option value="confirmed">Confirmed</option>
-                    </select>
-                  </td>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="text-center p-8 text-gray-500 text-sm md:text-base">Loading...</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : filteredSessions.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="text-center p-8 text-gray-500 text-sm md:text-base">No sessions found</td>
+                </tr>
+              ) : (
+                filteredSessions.map((session) => (
+                  <tr key={session.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="p-3 md:p-4">
+                      <input type="checkbox" className="rounded w-4 h-4 cursor-pointer" />
+                    </td>
+                    <td className="p-3 md:p-4">
+                      <span className="text-blue-600 font-medium text-xs md:text-sm">{session.client_id}</span>
+                    </td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600 whitespace-nowrap">
+                      {new Date(session.session_date).toLocaleDateString('en-US', { 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric' 
+                      })}
+                    </td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-900 font-medium">{session.full_name}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">{session.phone_number || 'N/A'}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600">{session.session_type}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600 font-medium">{session.total_duration}</td>
+                    <td className="p-3 md:p-4 text-xs md:text-sm text-gray-600 font-medium">{session.remaining_days}</td>
+                    <td className="p-3 md:p-4">
+                      <select
+                        value={session.status}
+                        onChange={(e) => handleStatusChange(session.id, e.target.value as 'booked' | 'confirmed' | 'pending')}
+                        className={`text-xs md:text-sm px-2 py-2 min-h-[44px] border border-gray-200 rounded cursor-pointer font-medium ${getStatusColor(session.status)} bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="booked">Booked</option>
+                        <option value="confirmed">Confirmed</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )
