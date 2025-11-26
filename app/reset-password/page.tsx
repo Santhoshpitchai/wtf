@@ -19,7 +19,7 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     setIsFormValid(
-      password.length >= 6 && 
+      password.length >= 6 &&
       confirmPassword.length > 0 &&
       password === confirmPassword
     )
@@ -66,23 +66,17 @@ export default function ResetPasswordPage() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white relative overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-400/10 to-purple-600/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-blue-500/10 to-green-500/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-        
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-blue-500/10 to-green-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+
         <div className="w-full max-w-md relative z-10">
           {/* Logo */}
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-gradient-to-br from-orange-500 to-purple-600 rounded-xl shadow-lg">
-                <Dumbbell className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <div className="text-4xl font-black bg-gradient-to-r from-orange-500 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  WTF
-                </div>
-                <div className="text-xs font-bold text-gray-600 tracking-wider">
-                  WITNESS THE FITNESS
-                </div>
-              </div>
+            <div className="w-56 h-28 flex items-center justify-center mx-auto bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-4 shadow-lg">
+              <img
+                src="/wtf-logo-new.png"
+                alt="WTF - Witness The Fitness"
+                className="w-full h-auto object-contain"
+              />
             </div>
           </div>
 
@@ -161,11 +155,10 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading || success || !isFormValid}
-              className={`w-full py-3 rounded-xl font-bold text-white transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
-                isFormValid && !loading && !success
-                  ? 'bg-gradient-to-r from-orange-500 via-purple-600 to-blue-600 shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60'
-                  : 'bg-gray-400'
-              }`}
+              className={`w-full py-3 rounded-xl font-bold text-white transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${isFormValid && !loading && !success
+                ? 'bg-gradient-to-r from-orange-500 via-purple-600 to-blue-600 shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60'
+                : 'bg-gray-400'
+                }`}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -194,8 +187,8 @@ export default function ResetPasswordPage() {
         {/* Animated gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-purple-600/20 to-blue-600/20"></div>
         <div className="absolute top-20 right-20 w-72 h-72 bg-orange-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-purple-600/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
-        
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-purple-600/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+
         <div className="text-center text-white max-w-lg relative z-10">
           <div className="w-64 h-64 mx-auto mb-8 bg-white/10 backdrop-blur-lg rounded-3xl flex items-center justify-center border border-white/20 shadow-2xl">
             <Lock className="w-32 h-32 text-white" strokeWidth={1.5} />
@@ -211,8 +204,8 @@ export default function ResetPasswordPage() {
           </p>
           <div className="flex gap-3 justify-center">
             <div className="w-3 h-3 bg-white rounded-full animate-bounce"></div>
-            <div className="w-3 h-3 bg-white/60 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-            <div className="w-3 h-3 bg-white/30 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+            <div className="w-3 h-3 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-3 h-3 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
           </div>
         </div>
       </div>

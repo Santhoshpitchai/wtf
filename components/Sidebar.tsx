@@ -75,65 +75,62 @@ export default function Sidebar() {
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo */}
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="text-2xl font-bold">
-              <span className="text-gray-800">WTF</span>
-            </div>
-            <div className="text-xs text-gray-600">
-              <div>WITNESS THE</div>
-              <div>FITNESS</div>
-            </div>
+        <div className="p-4 border-b border-gray-200 bg-gradient-to-br from-slate-900 to-slate-800">
+          <div className="flex items-center justify-center">
+            <img
+              src="/wtf-logo-new.png"
+              alt="WTF - Witness The Fitness"
+              className="w-40 h-auto object-contain"
+            />
           </div>
         </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
-        {menuItems.map((item) => {
-          const Icon = item.icon
-          const isActive = pathname === item.href
-          
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                isActive 
-                  ? 'bg-gray-900 text-white' 
+        {/* Navigation */}
+        <nav className="flex-1 p-4 space-y-1">
+          {menuItems.map((item) => {
+            const Icon = item.icon
+            const isActive = pathname === item.href
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
+                  ? 'bg-gray-900 text-white'
                   : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <Icon size={20} />
-              <span className="text-sm font-medium">{item.name}</span>
-            </Link>
-          )
-        })}
-      </nav>
+                  }`}
+              >
+                <Icon size={20} />
+                <span className="text-sm font-medium">{item.name}</span>
+              </Link>
+            )
+          })}
+        </nav>
 
-      {/* User Profile */}
-      <div className="p-4 border-t border-gray-200 mt-auto">
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-            <UserCircle size={24} className="text-gray-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-gray-900 truncate">
-              {loading ? 'Loading...' : user?.role === 'admin' ? 'Admin' : 'Personal Trainer'}
+        {/* User Profile */}
+        <div className="p-4 border-t border-gray-200 mt-auto">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
+              <UserCircle size={24} className="text-gray-600" />
             </div>
-            {user?.email && (
-              <div className="text-xs text-gray-500 truncate max-w-full">{user.email}</div>
-            )}
-            <button
-              onClick={handleLogout}
-              className="text-xs text-gray-500 hover:text-red-600 flex items-center gap-1 mt-2 transition-colors"
-            >
-              <LogOut size={12} />
-              <span>Logout</span>
-            </button>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-gray-900 truncate">
+                {loading ? 'Loading...' : user?.role === 'admin' ? 'Admin' : 'Personal Trainer'}
+              </div>
+              {user?.email && (
+                <div className="text-xs text-gray-500 truncate max-w-full">{user.email}</div>
+              )}
+              <button
+                onClick={handleLogout}
+                className="text-xs text-gray-500 hover:text-red-600 flex items-center gap-1 mt-2 transition-colors"
+              >
+                <LogOut size={12} />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
       </div>
     </>
   )

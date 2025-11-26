@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Search, Filter, Calendar, Plus, Play, Square } from 'lucide-react'
+import { Search, Filter, Calendar, Plus, Play, Square, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type { Client } from '@/types'
 import { getCurrentUser } from '@/lib/auth'
@@ -11,8 +11,27 @@ import type { AuthUser } from '@/lib/auth'
 interface ClientWithSession extends Client {
   total_duration: number
   remaining_days: number
-  session_status: 'not_started' | 'in_progress' | 'completed'
+  session_status: 'not_started' | 'in_progress' | 'completed' | 'pending_approval'
   session_start_time?: string
+  confirmation_id?: string
+  verification_url?: string
+  error_message?: string
+}
+
+// Session status state machine
+type SessionStatus = 'not_started' | 'pending_approval' | 'in_progress' | 'completed'
+
+// Valid state transitions
+const VALID_TRANSITIONS: Record<SessionStatus, SessionStatus[]> = {
+  not_started: ['pending_approval'],
+  pending_approval: ['in_progress', 'not_started'], // in_progress on approval, not_started on timeout/error
+  in_progress: ['completed'],
+  completed: ['not_started'] // Allow retry
+}
+
+// Validate state transition
+const isValidTransition = (from: SessionStatus, to: SessionStatus): boolean => {
+  return VALID_TRANSITIONS[from]?.includes(to) ?? false
 }
 
 export default function StartSessionPage() {
@@ -72,7 +91,7 @@ export default function StartSessionPage() {
       const clientsWithSessions: ClientWithSession[] = (data || []).map((client: Client) => {
         const totalDuration = calculateSessionDuration(client.session_type || '')
         const remainingDays = calculateRemainingDays(client.created_at, totalDuration)
-        
+
         return {
           ...client,
           total_duration: totalDuration,
@@ -89,27 +108,166 @@ export default function StartSessionPage() {
     }
   }
 
-  const handleStartSession = (clientId: string) => {
-    setClients(prev => prev.map(client => 
-      client.id === clientId 
-        ? { ...client, session_status: 'in_progress', session_start_time: new Date().toISOString() }
-        : client
-    ))
+  // Transition session status with validation
+  const transitionSessionStatus = (clientId: string, newStatus: SessionStatus, additionalData?: Partial<ClientWithSession>) => {
+    setClients(prev => prev.map(client => {
+      if (client.id !== clientId) return client
+
+      // Validate transition
+      if (!isValidTransition(client.session_status, newStatus)) {
+        console.error(`Invalid transition from ${client.session_status} to ${newStatus}`)
+        return client
+      }
+
+      return {
+        ...client,
+        session_status: newStatus,
+        ...additionalData
+      }
+    }))
+  }
+
+  const handleStartSession = async (clientId: string, trainerId: string | null | undefined) => {
+    if (!trainerId) {
+      // Display error message
+      setClients(prev => prev.map(client =>
+        client.id === clientId
+          ? { ...client, error_message: 'Unable to start session: No trainer assigned' }
+          : client
+      ))
+      return
+    }
+
+    try {
+      // Clear any previous error messages
+      setClients(prev => prev.map(client =>
+        client.id === clientId
+          ? { ...client, error_message: undefined }
+          : client
+      ))
+
+      // Transition: not_started → pending_approval
+      transitionSessionStatus(clientId, 'pending_approval')
+
+      // Call API to send verification email
+      const response = await fetch('/api/initiate-session-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          clientId,
+          trainerId
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send verification email')
+      }
+
+      // Store confirmation ID and verification URL for polling
+      setClients(prev => prev.map(client =>
+        client.id === clientId
+          ? {
+            ...client,
+            confirmation_id: data.confirmationId,
+            verification_url: data.verificationUrl
+          }
+          : client
+      ))
+
+      // Start polling for approval
+      pollForApproval(clientId, data.confirmationId)
+
+    } catch (error) {
+      console.error('Error starting session:', error)
+      
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initiate session verification'
+
+      // Transition: pending_approval → not_started (on error)
+      // Reset session state and display error
+      transitionSessionStatus(clientId, 'not_started', {
+        error_message: errorMessage,
+        confirmation_id: undefined,
+        verification_url: undefined
+      })
+    }
+  }
+
+  const pollForApproval = async (clientId: string, confirmationId: string) => {
+    const maxAttempts = 60 // Poll for 5 minutes (60 * 5 seconds)
+    let attempts = 0
+
+    const checkApproval = async (): Promise<void> => {
+      if (attempts >= maxAttempts) {
+        // Timeout - transition: pending_approval → not_started
+        transitionSessionStatus(clientId, 'not_started', {
+          error_message: 'Verification timeout (5 minutes). The client did not approve in time. Please try again.',
+          confirmation_id: undefined,
+          verification_url: undefined
+        })
+        return
+      }
+
+      try {
+        // Check the confirmation status in database
+        const { data, error } = await supabase
+          .from('session_confirmations')
+          .select('status, verified_at')
+          .eq('id', confirmationId)
+          .single()
+
+        if (error) throw error
+
+        if (data.status === 'approved') {
+          // Transition: pending_approval → in_progress
+          transitionSessionStatus(clientId, 'in_progress', {
+            session_start_time: new Date().toISOString(),
+            error_message: undefined
+          })
+          return
+        }
+
+        if (data.status === 'expired') {
+          // Link expired - transition: pending_approval → not_started
+          transitionSessionStatus(clientId, 'not_started', {
+            error_message: 'Verification link expired. Please send a new verification email.',
+            confirmation_id: undefined,
+            verification_url: undefined
+          })
+          return
+        }
+
+        // Still pending, continue polling
+        attempts++
+        setTimeout(() => checkApproval(), 5000) // Check every 5 seconds
+
+      } catch (error) {
+        console.error('Error checking approval status:', error)
+        // Continue polling on transient errors
+        attempts++
+        setTimeout(() => checkApproval(), 5000)
+      }
+    }
+
+    checkApproval()
   }
 
   const handleEndSession = (clientId: string) => {
-    setClients(prev => prev.map(client => 
-      client.id === clientId 
-        ? { ...client, session_status: 'completed', session_start_time: undefined }
-        : client
-    ))
+    // Transition: in_progress → completed
+    transitionSessionStatus(clientId, 'completed', {
+      session_start_time: undefined,
+      error_message: undefined
+    })
   }
 
   const filteredClients = clients.filter(client => {
-    const matchesSearch = searchTerm === '' || 
+    const matchesSearch = searchTerm === '' ||
       client.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.client_id.toLowerCase().includes(searchTerm.toLowerCase())
-    
+
     return matchesSearch
   })
 
@@ -128,7 +286,7 @@ export default function StartSessionPage() {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400"
             />
           </div>
-          
+
           <div className="hidden md:flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg whitespace-nowrap">
             <Calendar size={18} className="flex-shrink-0" />
             <input
@@ -146,8 +304,8 @@ export default function StartSessionPage() {
             />
           </div>
         </div>
-        
-        <button 
+
+        <button
           onClick={() => router.push('/dashboard/clients')}
           className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
         >
@@ -166,15 +324,14 @@ export default function StartSessionPage() {
           </div>
         ) : (
           filteredClients.map((client) => (
-            <div 
-              key={client.id} 
-              className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-5 border-2 ${
-                client.session_status === 'in_progress' 
-                  ? 'border-teal-500' 
-                  : client.session_status === 'completed'
+            <div
+              key={client.id}
+              className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-5 border-2 ${client.session_status === 'in_progress'
+                ? 'border-teal-500'
+                : client.session_status === 'completed'
                   ? 'border-green-500'
                   : 'border-transparent'
-              }`}
+                }`}
             >
               {/* Client Header */}
               <div className="flex items-start gap-3 mb-4">
@@ -204,18 +361,25 @@ export default function StartSessionPage() {
                 </div>
               </div>
 
+              {/* Error Message Display */}
+              {client.error_message && (
+                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-xs text-red-700 leading-relaxed">{client.error_message}</p>
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div className="flex gap-2 mb-3">
                 {client.session_status === 'not_started' && (
                   <>
-                    <button 
-                      onClick={() => handleStartSession(client.id)}
+                    <button
+                      onClick={() => handleStartSession(client.id, client.trainer_id)}
                       className="flex-1 px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition-colors flex items-center justify-center gap-2"
                     >
                       <Play size={16} />
                       START
                     </button>
-                    <button 
+                    <button
                       disabled
                       className="flex-1 px-4 py-2 border border-gray-300 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed"
                     >
@@ -223,16 +387,28 @@ export default function StartSessionPage() {
                     </button>
                   </>
                 )}
-                
+
+                {client.session_status === 'pending_approval' && (
+                  <>
+                    <button
+                      disabled
+                      className="flex-1 px-4 py-2 border-2 border-amber-400 bg-amber-50 text-amber-700 rounded-lg text-sm font-medium cursor-wait flex items-center justify-center gap-2"
+                    >
+                      <Loader2 className="animate-spin" size={16} />
+                      WAITING FOR APPROVAL
+                    </button>
+                  </>
+                )}
+
                 {client.session_status === 'in_progress' && (
                   <>
-                    <button 
+                    <button
                       disabled
                       className="flex-1 px-4 py-2 border border-gray-300 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed"
                     >
                       START
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleEndSession(client.id)}
                       className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
                     >
@@ -241,17 +417,17 @@ export default function StartSessionPage() {
                     </button>
                   </>
                 )}
-                
+
                 {client.session_status === 'completed' && (
                   <>
-                    <button 
-                      onClick={() => handleStartSession(client.id)}
+                    <button
+                      onClick={() => handleStartSession(client.id, client.trainer_id)}
                       className="flex-1 px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition-colors flex items-center justify-center gap-2"
                     >
                       <Play size={16} />
                       RESTART
                     </button>
-                    <button 
+                    <button
                       disabled
                       className="flex-1 px-4 py-2 border border-gray-300 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed"
                     >
@@ -268,9 +444,19 @@ export default function StartSessionPage() {
                     Ready to Start
                   </span>
                 )}
+                {client.session_status === 'pending_approval' && (
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full animate-pulse">
+                      ⏳ Waiting for Client Approval
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      Polling every 5 seconds (max 5 min)
+                    </span>
+                  </div>
+                )}
                 {client.session_status === 'in_progress' && (
-                  <span className="inline-block px-3 py-1 bg-teal-100 text-teal-700 text-xs font-medium rounded-full animate-pulse">
-                    Session In Progress
+                  <span className="inline-block px-3 py-1 bg-teal-100 text-teal-700 text-xs font-medium rounded-full">
+                    ✓ Session In Progress
                   </span>
                 )}
                 {client.session_status === 'completed' && (

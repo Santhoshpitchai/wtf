@@ -13,7 +13,7 @@ export default function SplashScreen() {
     const timer1 = setTimeout(() => setAnimationPhase(1), 500)
     const timer2 = setTimeout(() => setAnimationPhase(2), 1500)
     const timer3 = setTimeout(() => setAnimationPhase(3), 2500)
-    
+
     // Fade out and redirect
     const timer4 = setTimeout(() => {
       setIsVisible(false)
@@ -50,77 +50,34 @@ export default function SplashScreen() {
       {/* Main content */}
       <div className="relative z-10 text-center">
         {/* Logo container with glow effect */}
-        <div className={`relative mb-8 transition-all duration-1000 ${
-          animationPhase >= 1 ? 'scale-100 opacity-100' : 'scale-50 opacity-0'
-        }`}>
+        <div className={`relative mb-8 transition-all duration-1000 ${animationPhase >= 1 ? 'scale-100 opacity-100' : 'scale-50 opacity-0'
+          }`}>
           {/* Glow effect */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-40 h-40 bg-cyan-500/30 rounded-full blur-3xl animate-pulse"></div>
+            <div className="w-64 h-64 bg-cyan-500/30 rounded-full blur-3xl animate-pulse"></div>
           </div>
-          
-          {/* Logo icon */}
-          <div className="relative w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl transform hover:rotate-12 transition-transform duration-500">
-            <svg className="w-16 h-16 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-        </div>
 
-        {/* WTF Text with staggered animation */}
-        <div className="relative mb-6">
-          <h1 className="text-9xl font-black tracking-tighter">
-            <span className={`inline-block transition-all duration-700 ${
-              animationPhase >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
-            }`} style={{
-              background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              textShadow: '0 0 80px rgba(59, 130, 246, 0.5)'
-            }}>
-              W
-            </span>
-            <span className={`inline-block transition-all duration-700 delay-150 ${
-              animationPhase >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
-            }`} style={{
-              background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              textShadow: '0 0 80px rgba(59, 130, 246, 0.5)'
-            }}>
-              T
-            </span>
-            <span className={`inline-block transition-all duration-700 delay-300 ${
-              animationPhase >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
-            }`} style={{
-              background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              textShadow: '0 0 80px rgba(59, 130, 246, 0.5)'
-            }}>
-              F
-            </span>
-          </h1>
+          {/* Logo */}
+          <div className="relative w-80 h-40 mx-auto mb-6 flex items-center justify-center">
+            <img
+              src="/wtf-logo-new.png"
+              alt="WTF - Witness The Fitness"
+              className="w-full h-auto object-contain drop-shadow-2xl transform hover:scale-105 transition-transform duration-500"
+            />
+          </div>
         </div>
 
         {/* Subtitle with fade-in */}
-        <div className={`transition-all duration-1000 delay-500 ${
-          animationPhase >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-        }`}>
-          <p className="text-2xl font-bold text-cyan-400 tracking-[0.3em] uppercase mb-2">
-            Witness The Fitness
-          </p>
+        <div className={`transition-all duration-1000 delay-500 ${animationPhase >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+          }`}>
           <p className="text-lg text-blue-300/80 font-medium">
             Transform Your Journey
           </p>
         </div>
 
         {/* Loading bar */}
-        <div className={`mt-12 transition-all duration-1000 delay-1000 ${
-          animationPhase >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-        }`}>
+        <div className={`mt-12 transition-all duration-1000 delay-1000 ${animationPhase >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+          }`}>
           <div className="w-64 h-1.5 mx-auto bg-slate-700/50 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-full animate-loading-bar"></div>
           </div>

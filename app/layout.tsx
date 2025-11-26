@@ -5,8 +5,11 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'WTF Fitness - T&B Fitness Management',
+  title: 'WTF - Witness The Fitness',
   description: 'Gym and Personal Training Management System',
+  icons: {
+    icon: '/wtf-logo-new.png',
+  },
 }
 
 export default function RootLayout({
