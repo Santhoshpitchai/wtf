@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Users, DollarSign, Calendar, Play, UserCircle, BarChart3, UserPlus, LogOut, Dumbbell, Menu, X } from 'lucide-react'
+import { Users, DollarSign, Calendar, Play, UserCircle, BarChart3, UserPlus, LogOut, Dumbbell, Menu, X, FileText } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -14,6 +14,7 @@ const adminMenuItems = [
   { name: 'Personal Trainers', href: '/dashboard/trainers', icon: UserCircle },
   { name: 'Client Details', href: '/dashboard/clients', icon: Users },
   { name: 'PT Sales', href: '/dashboard/sales', icon: BarChart3 },
+  { name: 'Invoices', href: '/dashboard/invoices', icon: FileText },
   { name: 'Create PT', href: '/dashboard/create-pt', icon: UserPlus },
 ]
 

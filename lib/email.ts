@@ -6,6 +6,11 @@ interface SendEmailParams {
   subject: string
   html: string
   from?: string
+  attachments?: Array<{
+    filename: string
+    content: Buffer
+    contentType?: string
+  }>
 }
 
 interface SendEmailResult {
@@ -23,6 +28,7 @@ export async function sendEmail({
   subject,
   html,
   from,
+  attachments,
 }: SendEmailParams): Promise<SendEmailResult> {
   // Check which email service is configured
   const gmailUser = process.env.GMAIL_USER
@@ -31,16 +37,16 @@ export async function sendEmail({
 
   // Option 1: Gmail SMTP (Recommended for testing)
   if (gmailUser && gmailPassword) {
-    return sendViaGmail({ to, subject, html, from })
+    return sendViaGmail({ to, subject, html, from, attachments })
   }
 
   // Option 2: Resend (Original service)
   if (resendApiKey) {
-    return sendViaResend({ to, subject, html, from })
+    return sendViaResend({ to, subject, html, from, attachments })
   }
 
   // Option 3: Development mode (no email service configured)
-  return developmentMode({ to, subject, html })
+  return developmentMode({ to, subject, attachments })
 }
 
 /**
@@ -51,6 +57,7 @@ async function sendViaGmail({
   subject,
   html,
   from,
+  attachments,
 }: SendEmailParams): Promise<SendEmailResult> {
   const gmailUser = process.env.GMAIL_USER!
   const gmailPassword = process.env.GMAIL_APP_PASSWORD!
@@ -69,6 +76,11 @@ async function sendViaGmail({
       to,
       subject,
       html,
+      attachments: attachments?.map(att => ({
+        filename: att.filename,
+        content: att.content,
+        contentType: att.contentType || 'application/octet-stream',
+      })),
     })
 
     console.log('✅ Email sent successfully via Gmail SMTP')
@@ -94,6 +106,7 @@ async function sendViaResend({
   subject,
   html,
   from,
+  attachments,
 }: SendEmailParams): Promise<SendEmailResult> {
   const resendApiKey = process.env.RESEND_API_KEY!
 
@@ -104,11 +117,15 @@ async function sendViaResend({
       process.env.RESEND_FROM_EMAIL ||
       'WTF Fitness <onboarding@resend.dev>'
 
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: fromEmail,
       to: [to],
       subject,
       html,
+      attachments: attachments?.map(att => ({
+        filename: att.filename,
+        content: att.content,
+      })),
     })
 
     if (error) {
@@ -141,12 +158,15 @@ async function sendViaResend({
 function developmentMode({
   to,
   subject,
-  html,
-}: Omit<SendEmailParams, 'from'>): SendEmailResult {
+  attachments,
+}: Omit<SendEmailParams, 'from' | 'html'>): SendEmailResult {
   console.log('📧 DEVELOPMENT MODE - Email not sent (no email service configured)')
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
   console.log('To:', to)
   console.log('Subject:', subject)
+  if (attachments && attachments.length > 0) {
+    console.log('Attachments:', attachments.map(a => a.filename).join(', '))
+  }
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
   console.log('\n💡 To enable email sending, configure one of:')
   console.log('   1. Gmail SMTP (Recommended for testing):')

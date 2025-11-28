@@ -78,6 +78,37 @@ export default function PaymentsPage() {
   const totalCollected = filteredClients.reduce((sum, client) => sum + (client.first_payment || 0), 0)
   const totalPending = filteredClients.reduce((sum, client) => sum + (client.balance || 0), 0)
 
+  // Calculate visualization data
+  const totalClients = filteredClients.length
+  const activeClients = filteredClients.filter(c => c.status === 'active').length
+  const inactiveClients = totalClients - activeClients
+  
+  const paidClients = filteredClients.filter(c => (c.balance || 0) === 0).length
+  const pendingClients = totalClients - paidClients
+  
+  const totalExpected = totalCollected + totalPending
+  const collectionRate = totalExpected > 0 ? (totalCollected / totalExpected) * 100 : 0
+  
+  // Payment status percentages for pie chart
+  const paidPercentage = totalClients > 0 ? (paidClients / totalClients) * 100 : 0
+  const pendingPercentage = totalClients > 0 ? (pendingClients / totalClients) * 100 : 0
+  
+  // Monthly breakdown (last 6 months)
+  const monthlyData = Array.from({ length: 6 }, (_, i) => {
+    const date = new Date()
+    date.setMonth(date.getMonth() - (5 - i))
+    const month = date.toLocaleString('default', { month: 'short' })
+    const collected = filteredClients
+      .filter(c => {
+        const clientDate = new Date(c.created_at)
+        return clientDate.getMonth() === date.getMonth() && clientDate.getFullYear() === date.getFullYear()
+      })
+      .reduce((sum, c) => sum + (c.first_payment || 0), 0)
+    return { month, collected }
+  })
+  
+  const maxMonthlyCollection = Math.max(...monthlyData.map(d => d.collected), 1)
+
   return (
     <div className="p-4 md:p-6 lg:p-8">
       {/* Search and Filter Controls - Stack vertically on mobile */}
@@ -165,24 +196,137 @@ export default function PaymentsPage() {
         </button>
       </div>
 
-      {/* Summary Cards - 1 column on mobile, 2 on tablet, 3 on desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
-        <div className="bg-white rounded-lg shadow p-4 md:p-6">
-          <div className="text-xs md:text-sm text-gray-600 mb-2">Total Collected</div>
-          <div className="text-xl md:text-2xl lg:text-3xl font-bold text-green-600">₹{totalCollected.toFixed(2)}</div>
-          <div className="text-xs text-gray-500 mt-1">{filteredClients.length} clients</div>
+      {/* Clean Summary Cards - 1 column on mobile, 3 on desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-teal-300 transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm font-medium text-gray-500">Total Collected</div>
+            <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">₹{totalCollected.toLocaleString()}</div>
+          <div className="text-xs text-gray-500">{filteredClients.length} clients</div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 md:p-6">
-          <div className="text-xs md:text-sm text-gray-600 mb-2">Total Pending</div>
-          <div className="text-xl md:text-2xl lg:text-3xl font-bold text-orange-600">₹{totalPending.toFixed(2)}</div>
-          <div className="text-xs text-gray-500 mt-1">Outstanding balance</div>
+        
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-teal-300 transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm font-medium text-gray-500">Total Pending</div>
+            <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
+              <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">₹{totalPending.toLocaleString()}</div>
+          <div className="text-xs text-gray-500">Outstanding balance</div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 md:p-6">
-          <div className="text-xs md:text-sm text-gray-600 mb-2">Active Clients</div>
-          <div className="text-xl md:text-2xl lg:text-3xl font-bold text-blue-600">{filteredClients.filter(c => c.status === 'active').length}</div>
-          <div className="text-xs text-gray-500 mt-1">of {filteredClients.length} total</div>
+        
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-teal-300 transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm font-medium text-gray-500">Active Clients</div>
+            <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
+              <div className="w-3 h-3 rounded-full bg-teal-500"></div>
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 mb-1">{activeClients}</div>
+          <div className="text-xs text-gray-500">of {filteredClients.length} total</div>
         </div>
       </div>
+
+      {/* Clean Data Visualization - Only for PT users */}
+      {currentUser?.role === 'pt' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Payment Distribution */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Payment Distribution</h3>
+              <div className="text-sm text-gray-500">{totalClients} clients</div>
+            </div>
+            
+            <div className="space-y-4">
+              {/* Paid Progress Bar */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-teal-500"></div>
+                    <span className="text-sm font-medium text-gray-700">Fully Paid</span>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-900">{paidClients} ({paidPercentage.toFixed(0)}%)</span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-2">
+                  <div 
+                    className="h-full bg-teal-500 rounded-full transition-all duration-1000"
+                    style={{ width: `${paidPercentage}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Pending Progress Bar */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                    <span className="text-sm font-medium text-gray-700">Pending Payment</span>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-900">{pendingClients} ({pendingPercentage.toFixed(0)}%)</span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-2">
+                  <div 
+                    className="h-full bg-orange-500 rounded-full transition-all duration-1000"
+                    style={{ width: `${pendingPercentage}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Collection Rate */}
+              <div className="pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">Collection Rate</span>
+                  <span className={`text-2xl font-bold ${collectionRate >= 75 ? 'text-teal-600' : collectionRate >= 50 ? 'text-orange-600' : 'text-red-600'}`}>
+                    {collectionRate.toFixed(0)}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-2">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-1000 ${collectionRate >= 75 ? 'bg-teal-500' : collectionRate >= 50 ? 'bg-orange-500' : 'bg-red-500'}`}
+                    style={{ width: `${collectionRate}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Monthly Trend */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Monthly Trend</h3>
+              <div className="text-sm text-gray-500">Last 6 months</div>
+            </div>
+            
+            <div className="space-y-3">
+              {monthlyData.map((data, index) => {
+                const barWidth = (data.collected / maxMonthlyCollection) * 100
+                return (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="w-12 text-xs font-medium text-gray-600">{data.month}</div>
+                    <div className="flex-1">
+                      <div className="w-full bg-gray-100 rounded-full h-8 overflow-hidden">
+                        <div 
+                          className="h-full bg-teal-500 rounded-full transition-all duration-1000 flex items-center justify-end pr-2"
+                          style={{ width: `${Math.max(barWidth, 5)}%` }}
+                        >
+                          {data.collected > 0 && (
+                            <span className="text-xs font-medium text-white">₹{data.collected.toLocaleString()}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Payments Table - Horizontal scroll container on mobile */}
       <div className="bg-white rounded-lg shadow overflow-x-auto">

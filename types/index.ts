@@ -90,3 +90,40 @@ export interface PTSale {
   trainer?: Trainer
   client?: Client
 }
+
+export interface Invoice {
+  id: string
+  invoice_number: string
+  client_id: string
+  amount_paid: number
+  amount_remaining: number
+  total_amount: number
+  payment_date: string
+  subscription_months: number
+  status: 'draft' | 'sent' | 'failed'
+  email_sent_at?: string
+  pdf_url?: string
+  created_by?: string
+  created_at: string
+  updated_at: string
+  client?: Client
+}
+
+export interface InvoiceFormData {
+  client_id: string
+  amount_paid: number
+  amount_remaining: number
+  payment_date: string
+  subscription_months: number
+}
+
+export interface InvoiceEmailData {
+  clientName: string
+  clientEmail: string
+  invoiceNumber: string
+  amountPaid: number
+  amountRemaining: number
+  totalAmount: number
+  paymentDate: string
+  subscriptionMonths: number
+}
