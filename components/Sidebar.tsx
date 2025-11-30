@@ -78,13 +78,16 @@ export default function Sidebar() {
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo */}
-        <div className="p-6 pb-8 border-b border-slate-700/50">
-          <div className="flex items-center justify-center">
-            <img
-              src="/wtf-logo-new.png"
-              alt="WTF - Witness The Fitness"
-              className="w-full h-auto max-w-[180px] object-contain drop-shadow-2xl"
-            />
+        <div className="px-6 py-8">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative flex items-center justify-center py-2">
+              <img
+                src="/wtf-logo-new.png"
+                alt="WTF - Witness The Fitness"
+                className="w-full h-auto max-w-[160px] object-contain filter brightness-110 transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
           </div>
         </div>
 

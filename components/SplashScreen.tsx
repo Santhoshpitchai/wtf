@@ -7,21 +7,21 @@ export default function SplashScreen() {
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    // Smooth progress animation
+    // Smooth progress animation - faster to reach 100%
     const progressInterval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(progressInterval)
           return 100
         }
-        return prev + 2
+        return prev + 2.5
       })
-    }, 30)
+    }, 25)
 
     // Remove from DOM after fade completes
     const removeTimer = setTimeout(() => {
       setIsVisible(false)
-    }, 3700) // 3000ms + 700ms fade
+    }, 3200) // 2500ms + 700ms fade
 
     return () => {
       clearInterval(progressInterval)
