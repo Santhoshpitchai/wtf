@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { Eye, EyeOff, Dumbbell, Zap, Mail, CheckCircle } from 'lucide-react'
+import { Eye, EyeOff, Zap, Mail, CheckCircle } from 'lucide-react'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -111,212 +111,259 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Left side - Signup Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-400/10 to-purple-600/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-blue-500/10 to-green-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="w-full max-w-md relative z-10">
-          {/* Logo */}
-          <div className="mb-6">
-            <div className="w-56 h-28 flex items-center justify-center mx-auto bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-4 shadow-lg">
-              <img
-                src="/wtf-logo-new.png"
-                alt="WTF - Witness The Fitness"
-                className="w-full h-auto object-contain"
-              />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute top-20 right-20 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-20 left-20 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      
+      {/* Responsive Container */}
+      <div className="relative z-10 w-full px-4">
+        {/* Mobile: Direct Form */}
+        <div className="lg:hidden w-full max-w-md mx-auto">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto">
+            {/* Logo */}
+            <div className="mb-4">
+              <div className="w-48 h-24 flex items-center justify-center mx-auto bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-3 shadow-lg">
+                <img
+                  src="/wtf-logo-new.png"
+                  alt="WTF - Witness The Fitness"
+                  className="w-full h-auto object-contain"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Role Selection */}
-          <div className="flex gap-4 mb-6">
-            <button
-              type="button"
-              onClick={() => setRole('admin')}
-              className={`flex-1 py-3 rounded-xl font-bold transition-all transform hover:scale-105 ${role === 'admin'
-                ? 'bg-gradient-to-r from-orange-500 to-purple-600 text-white shadow-lg shadow-purple-500/50'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-            >
-              ADMIN
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole('pt')}
-              className={`flex-1 py-3 rounded-xl font-bold transition-all transform hover:scale-105 ${role === 'pt'
-                ? 'bg-gradient-to-r from-orange-500 to-purple-600 text-white shadow-lg shadow-purple-500/50'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-            >
-              PT
-            </button>
-          </div>
-
-          <h1 className="text-3xl font-black mb-2 text-gray-900">Create your account</h1>
-          <p className="text-gray-600 mb-6 flex items-center gap-2">
-            <Zap className="w-4 h-4 text-orange-500" />
-            Start your fitness transformation today
-          </p>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
-              {error}
+            {/* Role Selection */}
+            <div className="flex gap-3 mb-4 p-1 bg-gray-100 rounded-2xl">
+              <button
+                type="button"
+                onClick={() => setRole('admin')}
+                className={`flex-1 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wide transition-all ${role === 'admin'
+                  ? 'bg-gradient-to-r from-orange-500 to-purple-600 text-white shadow-lg'
+                  : 'text-gray-600 hover:bg-gray-200'
+                  }`}
+              >
+                ADMIN
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('pt')}
+                className={`flex-1 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wide transition-all ${role === 'pt'
+                  ? 'bg-gradient-to-r from-orange-500 to-purple-600 text-white shadow-lg'
+                  : 'text-gray-600 hover:bg-gray-200'
+                  }`}
+              >
+                PT
+              </button>
             </div>
-          )}
 
-          {success && showEmailVerification && (
-            <div className="mb-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-300 rounded-xl text-sm animate-in fade-in slide-in-from-top-2 duration-500">
-              <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold text-green-900 mb-1">Account Created Successfully!</p>
-                  <p className="text-green-700 mb-2 flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    Please check your email to verify your account
-                  </p>
-                  <p className="text-gray-600 text-xs">
-                    Redirecting to login page...
-                  </p>
+            <h1 className="text-2xl font-black mb-2 text-gray-900">Create your account</h1>
+            <p className="text-gray-600 mb-4 flex items-center gap-2 text-sm">
+              <Zap className="w-3 h-3 text-orange-500" />
+              Start your fitness transformation today
+            </p>
+
+            {error && (
+              <div className="mb-3 p-2.5 bg-red-50 border border-red-200 text-red-600 rounded-lg text-xs">
+                {error}
+              </div>
+            )}
+
+            {success && showEmailVerification && (
+              <div className="mb-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-300 rounded-xl text-xs">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-green-900 mb-1">Account Created!</p>
+                    <p className="text-green-700 mb-1 flex items-center gap-1">
+                      <Mail className="w-3 h-3" />
+                      Check your email to verify
+                    </p>
+                    <p className="text-gray-600 text-xs">
+                      Redirecting...
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <form onSubmit={handleSignup} className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleSignup} className="space-y-2.5">
+              <div className="grid grid-cols-2 gap-2.5">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="First Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm"
+                    required
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Last Name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm"
+                    required
+                  />
+                </div>
+              </div>
+
               <div>
                 <input
-                  type="text"
-                  placeholder="First Name"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm"
                   required
                 />
               </div>
+
               <div>
                 <input
-                  type="text"
-                  placeholder="Last Name"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                  required
+                  type="tel"
+                  placeholder="Phone Number (optional)"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm"
                 />
               </div>
-            </div>
 
-            <div>
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                required
-              />
-            </div>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password (min 6 characters)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm"
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
 
-            <div>
-              <input
-                type="tel"
-                placeholder="Phone Number (optional)"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-              />
-            </div>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
 
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Password (min 6 characters)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                required
-                minLength={6}
-              />
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors"
+                type="submit"
+                disabled={loading || !isFormValid}
+                className={`w-full py-2.5 rounded-xl font-bold text-sm text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isFormValid && !loading
+                  ? 'bg-gradient-to-r from-orange-500 via-purple-600 to-blue-600 shadow-lg'
+                  : 'bg-gray-400'
+                  }`}
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Creating account...
+                  </span>
+                ) : (
+                  'Sign up'
+                )}
               </button>
+            </form>
+
+            <div className="mt-4 text-center text-xs text-gray-600">
+              Already have an account?{' '}
+              <Link href="/" className="font-bold text-transparent bg-gradient-to-r from-orange-500 to-purple-600 bg-clip-text hover:from-orange-600 hover:to-purple-700 transition-all">
+                Sign in →
+              </Link>
             </div>
-
-            <div className="relative">
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors"
-              >
-                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading || !isFormValid}
-              className={`w-full py-3 rounded-xl font-bold text-white transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${isFormValid && !loading
-                ? 'bg-gradient-to-r from-orange-500 via-purple-600 to-blue-600 shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60'
-                : 'bg-gray-400'
-                }`}
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Creating account...
-                </span>
-              ) : (
-                'Sign up'
-              )}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link href="/" className="font-bold text-transparent bg-gradient-to-r from-orange-500 to-purple-600 bg-clip-text hover:from-orange-600 hover:to-purple-700 transition-all">
-              Sign in →
-            </Link>
           </div>
         </div>
-      </div>
 
-      {/* Right side - Hero Section */}
-      <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12 relative overflow-hidden">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 via-purple-600/20 to-blue-600/20"></div>
-        <div className="absolute top-20 right-20 w-72 h-72 bg-orange-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-purple-600/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
-
-        <div className="text-center text-white max-w-lg relative z-10">
-          <div className="w-64 h-64 mx-auto mb-8 bg-white/10 backdrop-blur-lg rounded-3xl flex items-center justify-center border border-white/20 shadow-2xl">
-            <Dumbbell className="w-32 h-32 text-white" strokeWidth={1.5} />
-          </div>
-          <h2 className="text-5xl font-black mb-4 leading-tight">
-            Join The
-            <span className="block bg-gradient-to-r from-orange-400 to-purple-400 bg-clip-text text-transparent">
-              Fitness Revolution
-            </span>
-          </h2>
-          <p className="text-lg text-white/80 mb-8">
-            Create your account and start transforming lives today
-          </p>
-          <div className="flex gap-3 justify-center">
-            <div className="w-3 h-3 bg-white rounded-full animate-bounce"></div>
-            <div className="w-3 h-3 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-            <div className="w-3 h-3 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+        {/* Desktop: Phone Mockup - Same content in phone frame */}
+        <div className="hidden lg:block">
+          <div className="relative w-[380px] h-[780px] bg-slate-900 rounded-[3rem] p-3 shadow-2xl border-8 border-slate-800 mx-auto">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-7 bg-slate-900 rounded-b-3xl z-20"></div>
+            <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
+              <div className="absolute top-0 left-0 right-0 h-12 bg-white z-10 flex items-center justify-between px-8 pt-2">
+                <span className="text-xs font-semibold text-gray-900">9:41</span>
+                <div className="flex items-center gap-1">
+                  <svg className="w-4 h-4 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                  </svg>
+                  <svg className="w-4 h-4 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zM12.12 13.88a3 3 0 00-4.242 0 1 1 0 01-1.415-1.415 5 5 0 017.072 0 1 1 0 01-1.415 1.415zM9 16a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <svg className="w-5 h-5 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                    <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="h-full overflow-y-auto pt-12 pb-6 px-6">
+                {/* Duplicate form content for desktop phone view */}
+                <div className="mb-4">
+                  <div className="w-48 h-24 flex items-center justify-center mx-auto bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-3 shadow-lg">
+                    <img src="/wtf-logo-new.png" alt="WTF - Witness The Fitness" className="w-full h-auto object-contain" />
+                  </div>
+                </div>
+                <div className="flex gap-3 mb-4 p-1 bg-gray-100 rounded-2xl">
+                  <button type="button" onClick={() => setRole('admin')} className={`flex-1 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wide transition-all ${role === 'admin' ? 'bg-gradient-to-r from-orange-500 to-purple-600 text-white shadow-lg' : 'text-gray-600 hover:bg-gray-200'}`}>ADMIN</button>
+                  <button type="button" onClick={() => setRole('pt')} className={`flex-1 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wide transition-all ${role === 'pt' ? 'bg-gradient-to-r from-orange-500 to-purple-600 text-white shadow-lg' : 'text-gray-600 hover:bg-gray-200'}`}>PT</button>
+                </div>
+                <h1 className="text-2xl font-black mb-2 text-gray-900">Create your account</h1>
+                <p className="text-gray-600 mb-4 flex items-center gap-2 text-sm"><Zap className="w-3 h-3 text-orange-500" />Start your fitness transformation today</p>
+                {error && <div className="mb-3 p-2.5 bg-red-50 border border-red-200 text-red-600 rounded-lg text-xs">{error}</div>}
+                {success && showEmailVerification && (
+                  <div className="mb-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-300 rounded-xl text-xs">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold text-green-900 mb-1">Account Created!</p>
+                        <p className="text-green-700 mb-1 flex items-center gap-1"><Mail className="w-3 h-3" />Check your email to verify</p>
+                        <p className="text-gray-600 text-xs">Redirecting...</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <form onSubmit={handleSignup} className="space-y-2.5">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm" required />
+                    <input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm" required />
+                  </div>
+                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm" required />
+                  <input type="tel" placeholder="Phone Number (optional)" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm" />
+                  <div className="relative">
+                    <input type={showPassword ? 'text' : 'password'} placeholder="Password (min 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm" required minLength={6} />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                  </div>
+                  <div className="relative">
+                    <input type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm" required />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-600 transition-colors">{showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                  </div>
+                  <button type="submit" disabled={loading || !isFormValid} className={`w-full py-2.5 rounded-xl font-bold text-sm text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isFormValid && !loading ? 'bg-gradient-to-r from-orange-500 via-purple-600 to-blue-600 shadow-lg' : 'bg-gray-400'}`}>
+                    {loading ? <span className="flex items-center justify-center gap-2"><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>Creating account...</span> : 'Sign up'}
+                  </button>
+                </form>
+                <div className="mt-4 text-center text-xs text-gray-600">Already have an account? <Link href="/" className="font-bold text-transparent bg-gradient-to-r from-orange-500 to-purple-600 bg-clip-text hover:from-orange-600 hover:to-purple-700 transition-all">Sign in →</Link></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
