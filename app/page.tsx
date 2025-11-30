@@ -21,10 +21,10 @@ export default function LoginPage() {
   const [isFormValid, setIsFormValid] = useState(false)
 
   useEffect(() => {
-    // Hide splash screen after 3.5 seconds
+    // Hide splash screen - start fading at 3000ms
     const timer = setTimeout(() => {
       setShowSplash(false)
-    }, 3500)
+    }, 3000)
 
     return () => clearTimeout(timer)
   }, [])
@@ -116,7 +116,7 @@ export default function LoginPage() {
   return (
     <>
       {showSplash && <SplashScreen />}
-      <div className={`min-h-screen flex relative overflow-hidden transition-opacity duration-1000 ${showSplash ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`min-h-screen flex relative overflow-hidden transition-opacity duration-700 ${showSplash ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl animate-pulse"></div>
