@@ -281,12 +281,17 @@ async function loadLogoAsBase64(): Promise<string> {
 }
 
 /**
- * Generates a PDF invoice from invoice data
+ * Generates a PDF invoice from invoice data with retry logic
  * @param invoiceData - The invoice data to generate PDF from
+ * @param retryCount - Current retry attempt (internal use)
  * @returns Promise<Buffer> - PDF file as a buffer
- * @throws Error if PDF generation fails
+ * @throws Error if PDF generation fails after all retries
  */
-export async function generateInvoicePDF(invoiceData: InvoiceEmailData): Promise<Buffer> {
+export async function generateInvoicePDF(
+  invoiceData: InvoiceEmailData,
+  retryCount: number = 0
+): Promise<Buffer> {
+  const maxRetries = 3
   let browser = null
   
   try {
@@ -296,45 +301,101 @@ export async function generateInvoicePDF(invoiceData: InvoiceEmailData): Promise
     // Generate HTML content
     const htmlContent = generateInvoiceHTML(invoiceData, logoBase64)
     
-    // Launch Puppeteer browser
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu'
-      ]
-    })
+    // Launch Puppeteer browser with timeout
+    browser = await Promise.race([
+      puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--disable-software-rasterizer',
+          '--disable-extensions'
+        ],
+        timeout: 30000 // 30 second timeout for browser launch
+      }),
+      new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Browser launch timeout')), 30000)
+      )
+    ])
     
     const page = await browser.newPage()
     
+    // Set a reasonable timeout for page operations
+    page.setDefaultTimeout(20000)
+    
     // Set content and wait for it to load
     await page.setContent(htmlContent, {
-      waitUntil: 'networkidle0'
+      waitUntil: 'networkidle0',
+      timeout: 20000
     })
     
-    // Generate PDF
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '20px',
-        right: '20px',
-        bottom: '20px',
-        left: '20px'
-      }
-    })
+    // Generate PDF with timeout
+    const pdfBuffer = await Promise.race([
+      page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: {
+          top: '20px',
+          right: '20px',
+          bottom: '20px',
+          left: '20px'
+        },
+        timeout: 20000
+      }),
+      new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('PDF generation timeout')), 20000)
+      )
+    ])
     
     return Buffer.from(pdfBuffer)
     
   } catch (error) {
-    console.error('Error generating PDF:', error)
-    throw new Error(`Failed to generate invoice PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error(`[PDF Generator] Error (attempt ${retryCount + 1}/${maxRetries + 1}):`, errorMessage)
+    console.error('[PDF Generator] Full error:', error)
+    
+    // Close browser if it was opened
+    if (browser) {
+      try {
+        await browser.close()
+      } catch (closeError) {
+        console.error('[PDF Generator] Error closing browser:', closeError)
+      }
+      browser = null
+    }
+    
+    // Retry if we haven't exceeded max retries
+    if (retryCount < maxRetries) {
+      console.log(`[PDF Generator] Retrying... (attempt ${retryCount + 2}/${maxRetries + 1})`)
+      // Wait a bit before retrying with exponential backoff
+      await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)))
+      return generateInvoicePDF(invoiceData, retryCount + 1)
+    }
+    
+    // If all retries failed, throw detailed error
+    let detailedError = `Failed to generate invoice PDF after ${maxRetries + 1} attempts. `
+    
+    if (errorMessage.includes('timeout')) {
+      detailedError += 'Timeout error - Puppeteer took too long to respond. This may be due to system resources or Chromium issues.'
+    } else if (errorMessage.includes('Browser')) {
+      detailedError += 'Browser launch error - Failed to start Chromium. This may be due to missing dependencies or system configuration.'
+    } else if (errorMessage.includes('Protocol error')) {
+      detailedError += 'Protocol error - Communication with Chromium failed. This may be due to system instability.'
+    } else {
+      detailedError += `Error: ${errorMessage}`
+    }
+    
+    throw new Error(detailedError)
   } finally {
     // Always close the browser
     if (browser) {
-      await browser.close()
+      try {
+        await browser.close()
+      } catch (closeError) {
+        console.error('[PDF Generator] Error closing browser in finally block:', closeError)
+      }
     }
   }
 }
