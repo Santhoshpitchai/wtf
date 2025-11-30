@@ -307,7 +307,7 @@ export default function StartSessionPage() {
 
         <button
           onClick={() => router.push('/dashboard/clients')}
-          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
         >
           <Plus size={20} />
           <span>Add Client</span>
@@ -327,7 +327,7 @@ export default function StartSessionPage() {
             <div
               key={client.id}
               className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-5 border-2 ${client.session_status === 'in_progress'
-                ? 'border-teal-500'
+                ? 'border-cyan-500'
                 : client.session_status === 'completed'
                   ? 'border-green-500'
                   : 'border-transparent'
@@ -335,13 +335,13 @@ export default function StartSessionPage() {
             >
               {/* Client Header */}
               <div className="flex items-start gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                   {client.full_name.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-gray-900 truncate">{client.full_name}</h3>
-                    <span className="text-teal-500 flex-shrink-0">✓</span>
+                    <span className="text-cyan-500 flex-shrink-0">✓</span>
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
                     ID: {client.client_id}
@@ -374,7 +374,7 @@ export default function StartSessionPage() {
                   <>
                     <button
                       onClick={() => handleStartSession(client.id, client.trainer_id)}
-                      className="flex-1 px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition-colors flex items-center justify-center gap-2"
+                      className="flex-1 px-4 py-2 bg-cyan-500 text-white rounded-lg text-sm font-medium hover:bg-cyan-600 transition-colors flex items-center justify-center gap-2"
                     >
                       <Play size={16} />
                       START
@@ -422,7 +422,7 @@ export default function StartSessionPage() {
                   <>
                     <button
                       onClick={() => handleStartSession(client.id, client.trainer_id)}
-                      className="flex-1 px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition-colors flex items-center justify-center gap-2"
+                      className="flex-1 px-4 py-2 bg-cyan-500 text-white rounded-lg text-sm font-medium hover:bg-cyan-600 transition-colors flex items-center justify-center gap-2"
                     >
                       <Play size={16} />
                       RESTART
@@ -455,7 +455,7 @@ export default function StartSessionPage() {
                   </div>
                 )}
                 {client.session_status === 'in_progress' && (
-                  <span className="inline-block px-3 py-1 bg-teal-100 text-teal-700 text-xs font-medium rounded-full">
+                  <span className="inline-block px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-medium rounded-full">
                     ✓ Session In Progress
                   </span>
                 )}

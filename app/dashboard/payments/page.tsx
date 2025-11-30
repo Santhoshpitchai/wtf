@@ -135,7 +135,7 @@ export default function PaymentsPage() {
               <Filter size={20} />
               Filters
               {statusFilter !== 'all' && (
-                <span className="ml-1 px-2 py-0.5 bg-teal-500 text-white text-xs rounded-full">1</span>
+                <span className="ml-1 px-2 py-0.5 bg-cyan-500 text-white text-xs rounded-full">1</span>
               )}
             </button>
             {showFilterMenu && (
@@ -189,7 +189,7 @@ export default function PaymentsPage() {
         {/* Add Client Button - Full width on mobile */}
         <button 
           onClick={() => router.push('/dashboard/clients')}
-          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors text-sm md:text-base font-medium"
+          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors text-sm md:text-base font-medium"
         >
           <Plus size={20} />
           Add Client
@@ -198,7 +198,7 @@ export default function PaymentsPage() {
 
       {/* Clean Summary Cards - 1 column on mobile, 3 on desktop */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-teal-300 transition-colors">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-cyan-300 transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm font-medium text-gray-500">Total Collected</div>
             <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
@@ -209,7 +209,7 @@ export default function PaymentsPage() {
           <div className="text-xs text-gray-500">{filteredClients.length} clients</div>
         </div>
         
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-teal-300 transition-colors">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-cyan-300 transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm font-medium text-gray-500">Total Pending</div>
             <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
@@ -220,11 +220,11 @@ export default function PaymentsPage() {
           <div className="text-xs text-gray-500">Outstanding balance</div>
         </div>
         
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-teal-300 transition-colors">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-cyan-300 transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm font-medium text-gray-500">Active Clients</div>
-            <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center">
-              <div className="w-3 h-3 rounded-full bg-teal-500"></div>
+            <div className="w-10 h-10 rounded-full bg-cyan-50 flex items-center justify-center">
+              <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 mb-1">{activeClients}</div>
@@ -247,14 +247,14 @@ export default function PaymentsPage() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-teal-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
                     <span className="text-sm font-medium text-gray-700">Fully Paid</span>
                   </div>
                   <span className="text-sm font-semibold text-gray-900">{paidClients} ({paidPercentage.toFixed(0)}%)</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div 
-                    className="h-full bg-teal-500 rounded-full transition-all duration-1000"
+                    className="h-full bg-cyan-500 rounded-full transition-all duration-1000"
                     style={{ width: `${paidPercentage}%` }}
                   ></div>
                 </div>
@@ -281,13 +281,13 @@ export default function PaymentsPage() {
               <div className="pt-4 border-t border-gray-100">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">Collection Rate</span>
-                  <span className={`text-2xl font-bold ${collectionRate >= 75 ? 'text-teal-600' : collectionRate >= 50 ? 'text-orange-600' : 'text-red-600'}`}>
+                  <span className={`text-2xl font-bold ${collectionRate >= 75 ? 'text-cyan-600' : collectionRate >= 50 ? 'text-orange-600' : 'text-red-600'}`}>
                     {collectionRate.toFixed(0)}%
                   </span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div 
-                    className={`h-full rounded-full transition-all duration-1000 ${collectionRate >= 75 ? 'bg-teal-500' : collectionRate >= 50 ? 'bg-orange-500' : 'bg-red-500'}`}
+                    className={`h-full rounded-full transition-all duration-1000 ${collectionRate >= 75 ? 'bg-cyan-500' : collectionRate >= 50 ? 'bg-orange-500' : 'bg-red-500'}`}
                     style={{ width: `${collectionRate}%` }}
                   ></div>
                 </div>
@@ -311,7 +311,7 @@ export default function PaymentsPage() {
                     <div className="flex-1">
                       <div className="w-full bg-gray-100 rounded-full h-8 overflow-hidden">
                         <div 
-                          className="h-full bg-teal-500 rounded-full transition-all duration-1000 flex items-center justify-end pr-2"
+                          className="h-full bg-cyan-500 rounded-full transition-all duration-1000 flex items-center justify-end pr-2"
                           style={{ width: `${Math.max(barWidth, 5)}%` }}
                         >
                           {data.collected > 0 && (

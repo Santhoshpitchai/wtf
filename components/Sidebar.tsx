@@ -55,10 +55,10 @@ export default function Sidebar() {
       {/* Mobile Menu Button - Minimum 44x44px touch target */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 bg-white rounded-lg shadow-lg border border-gray-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl shadow-2xl border border-slate-700 min-w-[44px] min-h-[44px] flex items-center justify-center hover:from-slate-800 hover:to-slate-700 transition-all duration-200"
         aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
       >
-        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        {isMobileMenuOpen ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
       </button>
 
       {/* Overlay for mobile - z-40 to sit below sidebar (z-50) but above content */}
@@ -73,23 +73,23 @@ export default function Sidebar() {
       {/* Sidebar - z-50 to sit above overlay (z-40) */}
       <div className={`
         fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
-        w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col
+        w-72 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 min-h-screen flex flex-col shadow-2xl
         transform transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo */}
-        <div className="p-4 border-b border-gray-200 bg-gradient-to-br from-slate-900 to-slate-800">
+        <div className="p-6 pb-8 border-b border-slate-700/50">
           <div className="flex items-center justify-center">
             <img
               src="/wtf-logo-new.png"
               alt="WTF - Witness The Fitness"
-              className="w-40 h-auto object-contain"
+              className="w-full h-auto max-w-[180px] object-contain drop-shadow-2xl"
             />
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
@@ -99,41 +99,41 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors min-h-[44px] ${isActive
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 min-h-[44px] group ${isActive
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
+                  : 'text-slate-300 hover:bg-slate-800/50 hover:text-white'
                   }`}
               >
-                <Icon size={20} />
-                <span className="text-sm font-medium">{item.name}</span>
+                <Icon size={20} className={`${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'} transition-colors`} />
+                <span className="text-sm font-semibold">{item.name}</span>
               </Link>
             )
           })}
         </nav>
 
         {/* User Profile */}
-        <div className="p-4 border-t border-gray-200 mt-auto">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-              <UserCircle size={24} className="text-gray-600" />
+        <div className="p-4 border-t border-slate-700/50 mt-auto bg-slate-900/50">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+              <UserCircle size={28} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-900 truncate">
+              <div className="text-sm font-bold text-white truncate">
                 {loading ? 'Loading...' : user?.role === 'admin' ? 'Admin' : 'Personal Trainer'}
               </div>
               {user?.email && (
-                <div className="text-xs text-gray-500 truncate max-w-full">{user.email}</div>
+                <div className="text-xs text-slate-400 truncate max-w-full">{user.email}</div>
               )}
-              <button
-                onClick={handleLogout}
-                className="text-xs text-gray-500 hover:text-red-600 flex items-center gap-1 mt-2 transition-colors min-h-[44px] py-2"
-                aria-label="Logout"
-              >
-                <LogOut size={12} />
-                <span>Logout</span>
-              </button>
             </div>
           </div>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-xl transition-all duration-200 min-h-[44px] border border-red-500/20 hover:border-red-500/30"
+            aria-label="Logout"
+          >
+            <LogOut size={16} />
+            <span className="text-sm font-semibold">Logout</span>
+          </button>
         </div>
       </div>
     </>

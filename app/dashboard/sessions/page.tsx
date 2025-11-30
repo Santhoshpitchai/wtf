@@ -196,7 +196,7 @@ export default function SessionsPage() {
             placeholder="Search by ID, name, or session type..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm md:text-base"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm md:text-base"
           />
         </div>
         
@@ -210,7 +210,7 @@ export default function SessionsPage() {
               <Filter size={20} />
               <span className="text-sm md:text-base">Filters</span>
               {statusFilter !== 'all' && (
-                <span className="ml-1 px-2 py-0.5 bg-teal-500 text-white text-xs rounded-full">1</span>
+                <span className="ml-1 px-2 py-0.5 bg-cyan-500 text-white text-xs rounded-full">1</span>
               )}
             </button>
             {showFilterMenu && (
@@ -270,7 +270,7 @@ export default function SessionsPage() {
         {/* Add Client Button - Full width on mobile */}
         <button 
           onClick={() => router.push('/dashboard/clients')}
-          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors min-h-[44px] font-medium"
+          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors min-h-[44px] font-medium"
         >
           <Plus size={20} />
           <span>Add Client</span>
@@ -330,7 +330,7 @@ export default function SessionsPage() {
                       <select
                         value={session.status}
                         onChange={(e) => handleStatusChange(session.id, e.target.value as 'booked' | 'confirmed' | 'pending')}
-                        className={`text-xs md:text-sm px-2 py-2 min-h-[44px] border border-gray-200 rounded cursor-pointer font-medium ${getStatusColor(session.status)} bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500`}
+                        className={`text-xs md:text-sm px-2 py-2 min-h-[44px] border border-gray-200 rounded cursor-pointer font-medium ${getStatusColor(session.status)} bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500`}
                       >
                         <option value="pending">Pending</option>
                         <option value="booked">Booked</option>

@@ -177,7 +177,7 @@ export default function InvoiceDetailsModal({
               </div>
               <div className="flex justify-between items-center pt-2">
                 <span className="text-base font-semibold text-gray-900">Total Amount:</span>
-                <span className="text-lg font-bold text-teal-600">₹{invoice.total_amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                <span className="text-lg font-bold text-cyan-600">₹{invoice.total_amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
@@ -269,7 +269,7 @@ export default function InvoiceDetailsModal({
             type="button"
             onClick={handleResend}
             disabled={resending}
-            className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] font-medium flex items-center justify-center gap-2"
+            className="flex-1 px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] font-medium flex items-center justify-center gap-2"
           >
             {resending ? (
               <>

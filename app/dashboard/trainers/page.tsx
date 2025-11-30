@@ -476,7 +476,7 @@ function TrainersPageContent() {
                   <button
                     type="submit"
                     disabled={formLoading || formSuccess}
-                    className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50 min-h-[44px]"
+                    className="flex-1 px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors disabled:opacity-50 min-h-[44px]"
                   >
                     {formLoading ? 'Updating...' : formSuccess ? 'Updated!' : 'Update Trainer'}
                   </button>

@@ -239,7 +239,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
                 }}
                 onFocus={() => setShowClientDropdown(true)}
                 placeholder="Search for a client..."
-                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 min-h-[44px] ${
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 min-h-[44px] ${
                   errors.client_id ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
@@ -271,7 +271,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
             
             {/* Selected Client Info */}
             {selectedClient && (
-              <div className="mt-2 p-3 bg-teal-50 rounded-lg border border-teal-200">
+              <div className="mt-2 p-3 bg-cyan-50 rounded-lg border border-cyan-200">
                 <div className="text-sm">
                   <div className="font-medium text-gray-900">{selectedClient.full_name}</div>
                   <div className="text-gray-600">{selectedClient.email || 'No email'}</div>
@@ -295,7 +295,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
               min="0"
               value={formData.amount_paid || ''}
               onChange={(e) => handleInputChange('amount_paid', parseFloat(e.target.value) || 0)}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 min-h-[44px] ${
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 min-h-[44px] ${
                 errors.amount_paid ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="0.00"
@@ -316,7 +316,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
               min="0"
               value={formData.amount_remaining || ''}
               onChange={(e) => handleInputChange('amount_remaining', parseFloat(e.target.value) || 0)}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 min-h-[44px] ${
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 min-h-[44px] ${
                 errors.amount_remaining ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="0.00"
@@ -343,7 +343,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
               type="date"
               value={formData.payment_date}
               onChange={(e) => handleInputChange('payment_date', e.target.value)}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 min-h-[44px] ${
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 min-h-[44px] ${
                 errors.payment_date ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -362,7 +362,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
               min="1"
               value={formData.subscription_months || ''}
               onChange={(e) => handleInputChange('subscription_months', parseInt(e.target.value) || 1)}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 min-h-[44px] ${
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 min-h-[44px] ${
                 errors.subscription_months ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="1"
@@ -385,7 +385,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] font-medium flex items-center justify-center gap-2"
+              className="flex-1 px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] font-medium flex items-center justify-center gap-2"
             >
               {submitting ? (
                 <>

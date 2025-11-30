@@ -61,11 +61,11 @@ export default function VerifySessionPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-teal-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-cyan-50 flex items-center justify-center p-4">
             <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
                 {/* Logo/Header */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full mb-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full mb-4">
                         <span className="text-white font-bold text-2xl">W</span>
                     </div>
                     <h1 className="text-2xl font-bold text-gray-900">Session Verification</h1>
@@ -75,7 +75,7 @@ export default function VerifySessionPage() {
                 <div className="text-center">
                     {status === 'loading' && (
                         <div className="py-8">
-                            <Loader2 className="w-16 h-16 text-teal-500 animate-spin mx-auto mb-4" />
+                            <Loader2 className="w-16 h-16 text-cyan-500 animate-spin mx-auto mb-4" />
                             <p className="text-gray-600 text-lg">Verifying your session...</p>
                         </div>
                     )}
@@ -87,7 +87,7 @@ export default function VerifySessionPage() {
                             <p className="text-gray-600 mb-6">{message}</p>
 
                             {clientName && trainerName && (
-                                <div className="bg-teal-50 rounded-lg p-4 mb-6">
+                                <div className="bg-cyan-50 rounded-lg p-4 mb-6">
                                     <p className="text-sm text-gray-600 mb-1">Client</p>
                                     <p className="font-semibold text-gray-900 mb-3">{clientName}</p>
                                     <p className="text-sm text-gray-600 mb-1">Trainer</p>

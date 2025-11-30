@@ -355,7 +355,7 @@ export default function ClientsPage() {
                 <Filter size={20} />
                 <span className="hidden sm:inline">Filters</span>
                 {statusFilter !== 'all' && (
-                  <span className="ml-1 px-2 py-0.5 bg-teal-500 text-white text-xs rounded-full">1</span>
+                  <span className="ml-1 px-2 py-0.5 bg-cyan-500 text-white text-xs rounded-full">1</span>
                 )}
               </button>
               {showFilterMenu && (
@@ -410,7 +410,7 @@ export default function ClientsPage() {
         {/* Add Client Button - Full width on mobile */}
         <button 
           onClick={() => setShowAddModal(true)}
-          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors text-sm md:text-base font-medium"
+          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors text-sm md:text-base font-medium"
         >
           <Plus size={20} />
           Add Client
@@ -469,7 +469,7 @@ export default function ClientsPage() {
                     <td className="p-3 md:p-4">
                       <button
                         onClick={() => handleEditClick(client)}
-                        className="p-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors min-w-[36px] min-h-[36px]"
+                        className="p-2 text-gray-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors min-w-[36px] min-h-[36px]"
                         title="Edit client"
                       >
                         <Edit2 size={18} />
@@ -789,7 +789,7 @@ export default function ClientsPage() {
                 <button
                   type="submit"
                   disabled={formLoading || formSuccess}
-                  className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50 min-h-[44px]"
+                  className="flex-1 px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors disabled:opacity-50 min-h-[44px]"
                 >
                   {formLoading ? 'Adding...' : formSuccess ? 'Added!' : 'Add Client'}
                 </button>
@@ -1053,7 +1053,7 @@ export default function ClientsPage() {
                 <button
                   type="submit"
                   disabled={formLoading || formSuccess}
-                  className="flex-1 px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50 min-h-[44px]"
+                  className="flex-1 px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors disabled:opacity-50 min-h-[44px]"
                 >
                   {formLoading ? 'Updating...' : formSuccess ? 'Updated!' : 'Update Client'}
                 </button>

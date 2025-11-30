@@ -193,10 +193,10 @@ function SalesPageContent() {
             <span>{monthlySalesChange}%</span>
           </div>
         </div>
-        <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
-          <div className="text-xs md:text-sm text-teal-100 mb-2">New Users</div>
+        <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-4 md:p-6 text-white shadow-lg hover:shadow-xl transition-shadow">
+          <div className="text-xs md:text-sm text-cyan-100 mb-2">New Users</div>
           <div className="text-xl md:text-2xl lg:text-3xl font-bold mb-2">{newUsersThisMonth}</div>
-          <div className={`flex items-center gap-1 text-xs md:text-sm text-teal-100`}>
+          <div className={`flex items-center gap-1 text-xs md:text-sm text-cyan-100`}>
             {parseFloat(newUsersChange) >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
             <span>{newUsersChange}%</span>
           </div>
@@ -286,7 +286,7 @@ function SalesPageContent() {
           <div className="space-y-4">
             {Object.entries(sessionTypeData).map(([type, count], index) => {
               const percentage = totalClients > 0 ? (count / totalClients) * 100 : 0
-              const colors = ['bg-blue-500', 'bg-purple-500', 'bg-teal-500', 'bg-pink-500']
+              const colors = ['bg-blue-500', 'bg-purple-500', 'bg-cyan-500', 'bg-pink-500']
               return (
                 <div key={type}>
                   <div className="flex items-center justify-between mb-2">
@@ -366,7 +366,7 @@ function SalesPageContent() {
           >
             <Filter size={20} />
             {(statusFilter !== 'all' || monthFilter !== 'all') && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-teal-500 text-white text-xs rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-500 text-white text-xs rounded-full flex items-center justify-center">
                 {(statusFilter !== 'all' ? 1 : 0) + (monthFilter !== 'all' ? 1 : 0)}
               </span>
             )}
@@ -419,11 +419,11 @@ function SalesPageContent() {
       )}
 
       {/* Quick Stats Bar */}
-      <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-xl p-4 md:p-6 mb-6 border border-teal-100">
+      <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 md:p-6 mb-6 border border-cyan-100">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
             <div className="text-xs md:text-sm text-gray-600 mb-1">Active Clients</div>
-            <div className="text-xl md:text-2xl font-bold text-teal-600">{filteredClients.filter(c => c.status === 'active').length}</div>
+            <div className="text-xl md:text-2xl font-bold text-cyan-600">{filteredClients.filter(c => c.status === 'active').length}</div>
           </div>
           <div className="text-center">
             <div className="text-xs md:text-sm text-gray-600 mb-1">Avg. Session</div>
@@ -546,7 +546,7 @@ function SalesPageContent() {
                 onClick={() => setCurrentPage(i + 1)}
                 className={`px-2 sm:px-3 py-1 border rounded min-w-[36px] min-h-[36px] ${
                   currentPage === i + 1
-                    ? 'bg-teal-500 text-white border-teal-500'
+                    ? 'bg-cyan-500 text-white border-cyan-500'
                     : 'border-gray-300 hover:bg-gray-50'
                 }`}
               >
@@ -560,7 +560,7 @@ function SalesPageContent() {
                   onClick={() => setCurrentPage(totalPages)}
                   className={`px-2 sm:px-3 py-1 border rounded min-w-[36px] min-h-[36px] ${
                     currentPage === totalPages
-                      ? 'bg-teal-500 text-white border-teal-500'
+                      ? 'bg-cyan-500 text-white border-cyan-500'
                       : 'border-gray-300 hover:bg-gray-50'
                   }`}
                 >

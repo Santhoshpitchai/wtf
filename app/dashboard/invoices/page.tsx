@@ -172,7 +172,7 @@ function InvoicesPageContent() {
           >
             <Filter size={20} />
             {statusFilter !== 'all' && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-teal-500 text-white text-xs rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-500 text-white text-xs rounded-full flex items-center justify-center">
                 1
               </span>
             )}
@@ -192,7 +192,7 @@ function InvoicesPageContent() {
 
         <button 
           onClick={() => setShowCreateModal(true)}
-          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors text-sm md:text-base font-medium order-3"
+          className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors text-sm md:text-base font-medium order-3"
         >
           <Plus size={20} />
           Create Invoice
@@ -309,7 +309,7 @@ function InvoicesPageContent() {
                 onClick={() => setCurrentPage(i + 1)}
                 className={`px-2 sm:px-3 py-1 border rounded min-w-[36px] min-h-[36px] ${
                   currentPage === i + 1
-                    ? 'bg-teal-500 text-white border-teal-500'
+                    ? 'bg-cyan-500 text-white border-cyan-500'
                     : 'border-gray-300 hover:bg-gray-50'
                 }`}
               >
@@ -323,7 +323,7 @@ function InvoicesPageContent() {
                   onClick={() => setCurrentPage(totalPages)}
                   className={`px-2 sm:px-3 py-1 border rounded min-w-[36px] min-h-[36px] ${
                     currentPage === totalPages
-                      ? 'bg-teal-500 text-white border-teal-500'
+                      ? 'bg-cyan-500 text-white border-cyan-500'
                       : 'border-gray-300 hover:bg-gray-50'
                   }`}
                 >
