@@ -19,3 +19,17 @@ export function formatDate(date: string | Date): string {
     day: 'numeric',
   }).format(new Date(date))
 }
+
+export function formatTime(date: Date = new Date()): string {
+  const hours = date.getHours()
+  const minutes = date.getMinutes()
+  
+  // Convert to 12-hour format
+  const displayHours = hours % 12 || 12
+  
+  // Format minutes with leading zero if needed
+  const displayMinutes = minutes.toString().padStart(2, '0')
+  
+  // Return format without leading zero for hours (e.g., "9:41" not "09:41")
+  return `${displayHours}:${displayMinutes}`
+}

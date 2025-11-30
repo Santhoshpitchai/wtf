@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
 import SplashScreen from '@/components/SplashScreen'
+import { formatTime } from '@/lib/utils'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -18,6 +19,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [isFormValid, setIsFormValid] = useState(false)
+  const [currentTime, setCurrentTime] = useState(formatTime())
 
   useEffect(() => {
     // Hide splash screen - start fading at 2500ms for seamless transition
@@ -26,6 +28,15 @@ export default function LoginPage() {
     }, 2500)
 
     return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    // Update time every 60 seconds
+    const interval = setInterval(() => {
+      setCurrentTime(formatTime())
+    }, 60000)
+
+    return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
@@ -278,7 +289,7 @@ export default function LoginPage() {
               <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
                 {/* Status Bar */}
                 <div className="absolute top-0 left-0 right-0 h-12 bg-white z-10 flex items-center justify-between px-8 pt-2">
-                  <span className="text-xs font-semibold text-gray-900">9:41</span>
+                  <span className="text-xs font-semibold text-gray-900">{currentTime}</span>
                   <div className="flex items-center gap-1">
                     <svg className="w-4 h-4 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />

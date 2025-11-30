@@ -1,0 +1,89 @@
+# Implementation Plan
+
+- [ ] 1. Create utility functions for time formatting and notification management
+  - [x] 1.1 Create time formatting utility function
+    - Write function to format Date object to "H:MM" format (no leading zero for single-digit hours)
+    - Handle edge cases for midnight and noon
+    - Export from lib/utils.ts
+    - _Requirements: 1.1, 1.4_
+  - [ ]* 1.2 Write property test for time formatting
+    - **Property 1: Time updates every minute**
+    - **Validates: Requirements 1.2**
+  - [ ] 1.3 Create notification state management utilities
+    - Write helper functions for creating, dismissing, and replacing notifications
+    - Define NotificationState interface in types
+    - _Requirements: 2.1, 3.1, 3.5_
+
+- [ ] 2. Implement ToastNotification component
+  - [ ] 2.1 Create ToastNotification component with animations
+    - Build reusable toast component with slide-in/slide-out animations
+    - Implement success and error variants with appropriate colors and icons
+    - Add click handler for manual dismissal
+    - Style with Tailwind CSS for positioning below status bar
+    - _Requirements: 2.2, 2.4, 3.2, 3.4, 4.1, 4.2, 4.5_
+  - [ ]* 2.2 Write property test for notification auto-dismiss timing
+    - **Property 4: Success notification auto-dismisses after 2 seconds**
+    - **Property 6: Error notification auto-dismisses after 4 seconds**
+    - **Validates: Requirements 2.3, 3.3**
+  - [ ]* 2.3 Write property test for manual dismissal
+    - **Property 8: Manual dismissal works for all notifications**
+    - **Validates: Requirements 4.4**
+
+- [ ] 3. Update login page with dynamic time display
+  - [x] 3.1 Add state and interval for dynamic time updates
+    - Add currentTime state to LoginPage component
+    - Implement useEffect with setInterval to update time every 60 seconds
+    - Clean up interval on component unmount
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.2 Update status bar in both mobile and desktop views with dynamic time
+    - Replace hardcoded "9:41" with dynamic currentTime state
+    - Ensure both mobile view and desktop phone mockup use the same time value
+    - _Requirements: 1.1, 1.3_
+  - [ ]* 3.3 Write property test for time consistency across views
+    - **Property 2: Time format consistency across views**
+    - **Validates: Requirements 1.3**
+
+- [ ] 4. Integrate toast notifications into login flow
+  - [ ] 4.1 Add notification state to LoginPage component
+    - Add notification state with type, message, and visibility
+    - Create functions to show success and error notifications
+    - Implement auto-dismiss timers (2s for success, 4s for error)
+    - _Requirements: 2.1, 2.3, 3.1, 3.3_
+  - [ ] 4.2 Integrate ToastNotification component into login page
+    - Add ToastNotification component to both mobile and desktop views
+    - Position below status bar with proper z-index
+    - _Requirements: 4.1, 4.2_
+  - [ ] 4.3 Trigger success notification on successful login
+    - Show success notification with "Login successful! Redirecting..." message
+    - Display before redirect to dashboard
+    - _Requirements: 2.1, 2.5_
+  - [ ] 4.4 Trigger error notification on login failure
+    - Replace existing error display with toast notification
+    - Show error notification with appropriate error message
+    - _Requirements: 3.1_
+  - [ ]* 4.5 Write property test for notification replacement
+    - **Property 7: New notifications replace existing ones**
+    - **Validates: Requirements 3.5**
+  - [ ]* 4.6 Write property test for successful login notification
+    - **Property 3: Successful login triggers success notification**
+    - **Validates: Requirements 2.1**
+  - [ ]* 4.7 Write property test for failed login notification
+    - **Property 5: Failed login triggers error notification**
+    - **Validates: Requirements 3.1**
+
+- [ ] 5. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 6. Add accessibility features
+  - [ ] 6.1 Add ARIA attributes to toast notifications
+    - Add role="alert" for notifications
+    - Add aria-live="polite" for screen reader announcements
+    - Ensure notification messages are accessible
+    - _Requirements: 4.4_
+  - [ ] 6.2 Add keyboard support for dismissing notifications
+    - Implement Escape key handler to dismiss visible notifications
+    - Ensure focus management works correctly
+    - _Requirements: 4.4_
+
+- [ ] 7. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
