@@ -4,6 +4,9 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CheckCircle2, XCircle, Clock, Loader2 } from 'lucide-react'
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 function VerifySessionContent() {
     const searchParams = useSearchParams()
     const router = useRouter()
