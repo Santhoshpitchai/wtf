@@ -293,6 +293,15 @@ export default function SignupPage() {
                 Sign in →
               </Link>
             </div>
+
+            {/* Footer - Mobile View */}
+            <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+              <p className="text-xs text-gray-500">
+                Built with <span className="text-red-500">❤️</span> at{' '}
+                <span className="font-semibold text-purple-600">Dscape</span> by{' '}
+                <span className="font-semibold text-gray-700">Santhosh Pitchai</span>
+              </p>
+            </div>
           </div>
         </div>
 
@@ -362,6 +371,15 @@ export default function SignupPage() {
                   </button>
                 </form>
                 <div className="mt-4 text-center text-xs text-gray-600">Already have an account? <Link href="/" className="font-bold text-transparent bg-gradient-to-r from-orange-500 to-purple-600 bg-clip-text hover:from-orange-600 hover:to-purple-700 transition-all">Sign in →</Link></div>
+
+                {/* Footer - Desktop Phone Mockup */}
+                <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+                  <p className="text-xs text-gray-500">
+                    Built with <span className="text-red-500">❤️</span> at{' '}
+                    <span className="font-semibold text-purple-600">Dscape</span> by{' '}
+                    <span className="font-semibold text-gray-700">Santhosh Pitchai</span>
+                  </p>
+                </div>
               </div>
             </div>
           </div>

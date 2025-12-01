@@ -127,18 +127,25 @@ export default function LoginPage() {
     <>
       {showSplash && <SplashScreen />}
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        {/* Animated Background Elements */}
+        {/* Enhanced Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-20 left-20 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-blue-400/10 to-cyan-400/10 rounded-full blur-3xl animate-spin-slow"></div>
+          
+          {/* Floating Particles */}
+          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-cyan-400/40 rounded-full animate-float"></div>
+          <div className="absolute top-1/3 right-1/3 w-3 h-3 bg-blue-400/30 rounded-full animate-float-delayed"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-2 h-2 bg-cyan-300/40 rounded-full animate-float"></div>
+          <div className="absolute bottom-1/3 left-1/3 w-3 h-3 bg-blue-300/30 rounded-full animate-float-delayed"></div>
         </div>
 
         {/* Responsive Container */}
         <div className="relative z-10 w-full px-4">
           {/* Mobile: Direct Form | Desktop: Phone Mockup */}
           <div className="lg:hidden w-full max-w-md mx-auto">
-            {/* Mobile View - Direct Form */}
-            <div className="bg-white rounded-3xl shadow-2xl p-6">
+            {/* Mobile View - Direct Form with Glassmorphism */}
+            <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-6 hover:shadow-cyan-500/10 hover:shadow-3xl transition-all duration-500">
               <div className="animate-fade-in">
                 {/* Logo */}
                 <div className="mb-6">
@@ -201,32 +208,32 @@ export default function LoginPage() {
 
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-focus-within:text-cyan-600">Email</label>
                     <input
                       type="email"
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all text-sm"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all duration-300 text-sm hover:border-gray-300 hover:shadow-md bg-white/50"
                       required
                     />
                   </div>
 
                   <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 transition-colors group-focus-within:text-cyan-600">Password</label>
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Enter your password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all text-sm"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all duration-300 text-sm hover:border-gray-300 hover:shadow-md bg-white/50"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-cyan-600 transition-all duration-200 hover:scale-110"
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -251,7 +258,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={loading || !isFormValid}
-                    className="w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    className="w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-cyan-500/50 hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {loading ? (
                       <span className="flex items-center justify-center gap-2">
@@ -273,6 +280,15 @@ export default function LoginPage() {
                     <Link href="/signup" className="font-bold text-blue-600 hover:text-blue-700 transition-colors">
                       Sign up for free
                     </Link>
+                  </p>
+                </div>
+
+                {/* Footer - Mobile View */}
+                <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+                  <p className="text-xs text-gray-500">
+                    Built with <span className="text-red-500">❤️</span> at{' '}
+                    <span className="font-semibold text-cyan-600">Dscape</span> by{' '}
+                    <span className="font-semibold text-gray-700">Santhosh Pitchai</span>
                   </p>
                 </div>
               </div>
@@ -443,11 +459,31 @@ export default function LoginPage() {
                         </Link>
                       </p>
                     </div>
+
+                    {/* Footer - Desktop Phone Mockup */}
+                    <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+                      <p className="text-xs text-gray-500">
+                        Built with <span className="text-red-500">❤️</span> at{' '}
+                        <span className="font-semibold text-cyan-600">Dscape</span> by{' '}
+                        <span className="font-semibold text-gray-700">Santhosh Pitchai</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Footer - Outside (for full page background) */}
+        <div className="absolute bottom-4 left-0 right-0 text-center z-20 px-4 lg:hidden">
+          <p className="text-xs text-gray-300/90 font-medium">
+            Built with <span className="text-red-400">❤️</span> at{' '}
+            <span className="font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+              Dscape
+            </span>{' '}
+            by <span className="font-bold text-white">Santhosh Pitchai</span>
+          </p>
         </div>
 
         <style jsx>{`
@@ -467,9 +503,52 @@ export default function LoginPage() {
           25% { transform: translateX(-10px); }
           75% { transform: translateX(10px); }
         }
+
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+            opacity: 0.3;
+          }
+          50% {
+            transform: translateY(-20px) translateX(10px);
+            opacity: 0.6;
+          }
+        }
+
+        @keyframes float-delayed {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+            opacity: 0.2;
+          }
+          50% {
+            transform: translateY(-30px) translateX(-15px);
+            opacity: 0.5;
+          }
+        }
+
+        @keyframes spin-slow {
+          from {
+            transform: translate(-50%, -50%) rotate(0deg);
+          }
+          to {
+            transform: translate(-50%, -50%) rotate(360deg);
+          }
+        }
         
         .animate-fade-in {
           animation: fade-in 0.6s ease-out;
+        }
+
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-float-delayed {
+          animation: float-delayed 8s ease-in-out infinite;
+        }
+
+        .animate-spin-slow {
+          animation: spin-slow 20s linear infinite;
         }
         
         .animate-shake {
