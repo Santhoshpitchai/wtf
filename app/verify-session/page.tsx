@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { CheckCircle2, XCircle, Clock, Loader2 } from 'lucide-react'
 
-export default function VerifySessionPage() {
+function VerifySessionContent() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const token = searchParams.get('token')
@@ -169,5 +169,22 @@ export default function VerifySessionPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function VerifySessionPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-cyan-50 flex items-center justify-center p-4">
+                <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+                    <div className="text-center py-8">
+                        <Loader2 className="w-16 h-16 text-cyan-500 animate-spin mx-auto mb-4" />
+                        <p className="text-gray-600 text-lg">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        }>
+            <VerifySessionContent />
+        </Suspense>
     )
 }

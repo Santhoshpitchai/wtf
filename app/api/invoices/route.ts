@@ -5,10 +5,17 @@ import { generateInvoicePDF } from '@/lib/pdf-generator'
 import { sendEmail } from '@/lib/email'
 import { InvoiceFormData, InvoiceEmailData } from '@/types'
 
-// Create a Supabase client with service role for server-side operations
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+// Helper function to create Supabase client
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error('Missing Supabase environment variables')
+  }
+  
+  return createClient(supabaseUrl, supabaseServiceKey)
+}
 
 /**
  * GET /api/invoices
@@ -16,6 +23,8 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = getSupabaseClient()
+    
     // Parse query parameters
     const { searchParams } = new URL(request.url)
     const clientId = searchParams.get('client_id')
@@ -85,6 +94,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = getSupabaseClient()
+    
     // Parse request body
     const body: InvoiceFormData = await request.json()
     
