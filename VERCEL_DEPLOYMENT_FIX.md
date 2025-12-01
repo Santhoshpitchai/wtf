@@ -39,12 +39,14 @@ export async function POST(request: NextRequest) {
 
 ### 2. ✅ useSearchParams Suspense Boundary Error
 **Problem:** `useSearchParams() should be wrapped in a suspense boundary at page "/verify-session"`
-**Root Cause:** Next.js 14 requires `useSearchParams()` to be wrapped in a Suspense boundary for proper static generation.
+**Root Cause:** Next.js 14 requires `useSearchParams()` to be wrapped in a Suspense boundary AND the page needs to be marked as dynamic to prevent static pre-rendering.
 
 **File Fixed:**
 - `app/verify-session/page.tsx`
 
-**Solution:** Wrapped the component using `useSearchParams()` in a Suspense boundary with a loading fallback.
+**Solution:** 
+1. Wrapped the component using `useSearchParams()` in a Suspense boundary
+2. Added `export const dynamic = 'force-dynamic'` to force dynamic rendering
 
 ```typescript
 // Before (❌ Fails during build)
@@ -54,6 +56,11 @@ export default function VerifySessionPage() {
 }
 
 // After (✅ Works)
+'use client'
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 function VerifySessionContent() {
   const searchParams = useSearchParams()
   // ...
