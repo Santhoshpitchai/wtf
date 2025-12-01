@@ -1,4 +1,5 @@
-import puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer-core'
+import chromium from '@sparticuz/chromium'
 import { InvoiceEmailData } from '@/types'
 import path from 'path'
 import fs from 'fs'
@@ -301,18 +302,14 @@ export async function generateInvoicePDF(
     // Generate HTML content
     const htmlContent = generateInvoiceHTML(invoiceData, logoBase64)
     
-    // Launch Puppeteer browser with timeout
+    // Launch Puppeteer browser with timeout (Vercel-compatible)
     browser = await Promise.race([
       puppeteer.launch({
-        headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu',
-          '--disable-software-rasterizer',
-          '--disable-extensions'
-        ],
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
         timeout: 30000 // 30 second timeout for browser launch
       }),
       new Promise<never>((_, reject) => 
