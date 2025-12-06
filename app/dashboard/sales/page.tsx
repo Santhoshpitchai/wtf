@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Search, TrendingUp, TrendingDown, Filter, Plus, Calendar } from 'lucide-react'
+import { Search, TrendingUp, TrendingDown, Filter, Plus, Calendar, Download } from 'lucide-react'
 import type { Client } from '@/types'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentUser } from '@/lib/auth'
@@ -24,10 +24,30 @@ function SalesPageContent() {
   const [monthFilter, setMonthFilter] = useState<'all' | 'current'>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+  const downloadMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     loadUserAndData()
   }, [])
+
+  // Close download menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (downloadMenuRef.current && !downloadMenuRef.current.contains(event.target as Node)) {
+        setShowDownloadMenu(false)
+      }
+    }
+
+    if (showDownloadMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showDownloadMenu])
 
   const loadUserAndData = async () => {
     const user = await getCurrentUser()
@@ -172,6 +192,44 @@ function SalesPageContent() {
   // Calculate collection rate
   const totalExpected = filteredClients.reduce((sum, c) => sum + (c.first_payment || 0) + (c.balance || 0), 0)
   const collectionRate = totalExpected > 0 ? (totalSales / totalExpected) * 100 : 0
+
+  // Download report function
+  const downloadReport = async (format: 'pdf' | 'csv' | 'excel') => {
+    try {
+      setDownloading(true)
+      setShowDownloadMenu(false)
+      
+      const params = new URLSearchParams({
+        format,
+        period: monthFilter,
+        status: statusFilter,
+      })
+      
+      const response = await fetch(`/api/sales-report?${params}`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate report')
+      }
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      
+      const extension = format === 'excel' ? 'xlsx' : format
+      a.download = `sales-report-${Date.now()}.${extension}`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      
+    } catch (error) {
+      console.error('Error downloading report:', error)
+      alert('Failed to download report. Please try again.')
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   return (
     <div className="p-4 md:p-6 lg:p-8">
@@ -374,6 +432,43 @@ function SalesPageContent() {
           <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 min-w-[44px] min-h-[44px] flex items-center justify-center">
             <Calendar size={20} />
           </button>
+          <div className="relative" ref={downloadMenuRef}>
+            <button 
+              onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+              disabled={downloading}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all"
+            >
+              <Download size={20} />
+              <span className="hidden sm:inline">{downloading ? 'Downloading...' : 'Download Report'}</span>
+            </button>
+            {showDownloadMenu && !downloading && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-10">
+                <div className="py-2">
+                  <button
+                    onClick={() => downloadReport('pdf')}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-sm"
+                  >
+                    <span className="text-red-500">📄</span>
+                    <span>Download as PDF</span>
+                  </button>
+                  <button
+                    onClick={() => downloadReport('csv')}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-sm"
+                  >
+                    <span className="text-green-500">📊</span>
+                    <span>Download as CSV</span>
+                  </button>
+                  <button
+                    onClick={() => downloadReport('excel')}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-sm"
+                  >
+                    <span className="text-green-600">📗</span>
+                    <span>Download as Excel</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         <div className="relative flex-1 max-w-full lg:max-w-md order-1 lg:order-2">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />

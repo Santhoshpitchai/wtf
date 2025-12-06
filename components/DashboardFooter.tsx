@@ -1,153 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { HelpCircle, Shield, FileText, Mail, Phone, RefreshCw } from 'lucide-react'
+import { HelpCircle, Shield, FileText, Mail, Phone } from 'lucide-react'
 
 interface DashboardFooterProps {
   userRole: 'admin' | 'pt'
 }
 
 export default function DashboardFooter({ userRole }: DashboardFooterProps) {
-  const [stats, setStats] = useState({
-    activeClients: 0,
-    sessionsThisMonth: 0,
-    revenue: 0,
-    pendingInvoices: 0,
-  })
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchStats()
-  }, [userRole])
-
-  const fetchStats = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      // Get current month start date
-      const now = new Date()
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-
-      if (userRole === 'admin') {
-        // Admin stats - all clients and sessions
-        const [clientsRes, sessionsRes, invoicesRes] = await Promise.all([
-          supabase.from('clients').select('id', { count: 'exact' }),
-          supabase
-            .from('sessions')
-            .select('id', { count: 'exact' })
-            .gte('session_date', monthStart.toISOString()),
-          supabase.from('invoices').select('amount, status'),
-        ])
-
-        const pendingInvoices = invoicesRes.data?.filter(
-          (inv) => inv.status === 'pending'
-        ).length || 0
-
-        const totalRevenue = invoicesRes.data
-          ?.filter((inv) => inv.status === 'paid')
-          .reduce((sum, inv) => sum + (inv.amount || 0), 0) || 0
-
-        setStats({
-          activeClients: clientsRes.count || 0,
-          sessionsThisMonth: sessionsRes.count || 0,
-          revenue: totalRevenue,
-          pendingInvoices,
-        })
-      } else {
-        // PT stats - only their clients and sessions
-        const { data: trainer } = await supabase
-          .from('trainers')
-          .select('id')
-          .eq('email', user.email)
-          .single()
-
-        if (trainer) {
-          const [clientsRes, sessionsRes, invoicesRes] = await Promise.all([
-            supabase
-              .from('clients')
-              .select('id', { count: 'exact' })
-              .eq('trainer_id', trainer.id),
-            supabase
-              .from('sessions')
-              .select('id', { count: 'exact' })
-              .eq('trainer_id', trainer.id)
-              .gte('session_date', monthStart.toISOString()),
-            supabase
-              .from('invoices')
-              .select('amount, status')
-              .eq('trainer_id', trainer.id),
-          ])
-
-          const pendingInvoices = invoicesRes.data?.filter(
-            (inv) => inv.status === 'pending'
-          ).length || 0
-
-          const totalRevenue = invoicesRes.data
-            ?.filter((inv) => inv.status === 'paid')
-            .reduce((sum, inv) => sum + (inv.amount || 0), 0) || 0
-
-          setStats({
-            activeClients: clientsRes.count || 0,
-            sessionsThisMonth: sessionsRes.count || 0,
-            revenue: totalRevenue,
-            pendingInvoices,
-          })
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching footer stats:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
     <footer className="bg-white border-t border-gray-200 mt-auto">
-      {/* Stats Bar */}
-      <div className="bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex justify-end items-center mb-2">
-            <button
-              onClick={fetchStats}
-              disabled={loading}
-              className="text-xs text-cyan-600 hover:text-cyan-700 flex items-center gap-1 transition-colors disabled:opacity-50"
-            >
-              <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-              Refresh
-            </button>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <p className="text-xs text-gray-500 mb-1">Active Clients</p>
-              <p className="text-lg font-bold text-gray-900">
-                {loading ? '...' : stats.activeClients}
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-gray-500 mb-1">Sessions (MTD)</p>
-              <p className="text-lg font-bold text-gray-900">
-                {loading ? '...' : stats.sessionsThisMonth}
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-gray-500 mb-1">Revenue (MTD)</p>
-              <p className="text-lg font-bold text-green-600">
-                {loading ? '...' : `$${stats.revenue.toFixed(2)}`}
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-gray-500 mb-1">Pending Invoices</p>
-              <p className="text-lg font-bold text-orange-600">
-                {loading ? '...' : stats.pendingInvoices}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -239,14 +101,9 @@ export default function DashboardFooter({ userRole }: DashboardFooterProps) {
 
         {/* Bottom Bar */}
         <div className="mt-6 pt-6 border-t border-gray-200">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4">
             <p className="text-xs text-gray-500">
               © {new Date().getFullYear()} WTF - Witness The Fitness. All rights reserved.
-            </p>
-            <p className="text-xs text-gray-500">
-              Built with <span className="text-red-500">❤️</span> at{' '}
-              <span className="font-semibold text-cyan-600">Dscape</span> by{' '}
-              <span className="font-semibold text-gray-700">Santhosh Pitchai</span>
             </p>
           </div>
         </div>

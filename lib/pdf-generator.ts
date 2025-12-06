@@ -292,59 +292,65 @@ export async function generateInvoicePDF(
   invoiceData: InvoiceEmailData,
   retryCount: number = 0
 ): Promise<Buffer> {
-  const maxRetries = 3
+  const maxRetries = 2 // Reduced retries for faster failure
   let browser = null
   
   try {
+    console.log(`[PDF Generator] Starting PDF generation (attempt ${retryCount + 1}/${maxRetries + 1})`)
+    
     // Load logo as base64
     const logoBase64 = await loadLogoAsBase64()
     
     // Generate HTML content
     const htmlContent = generateInvoiceHTML(invoiceData, logoBase64)
     
-    // Launch Puppeteer browser with timeout (Vercel-compatible)
-    browser = await Promise.race([
-      puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-        ignoreHTTPSErrors: true,
-        timeout: 30000 // 30 second timeout for browser launch
-      }),
-      new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('Browser launch timeout')), 30000)
-      )
-    ])
+    // Get Chromium executable path first
+    const executablePath = await chromium.executablePath()
+    console.log(`[PDF Generator] Chromium executable path: ${executablePath}`)
     
-    const page = await browser.newPage()
-    
-    // Set a reasonable timeout for page operations
-    page.setDefaultTimeout(20000)
-    
-    // Set content and wait for it to load
-    await page.setContent(htmlContent, {
-      waitUntil: 'networkidle0',
-      timeout: 20000
+    // Launch Puppeteer browser with optimized settings for serverless
+    console.log('[PDF Generator] Launching browser...')
+    browser = await puppeteer.launch({
+      args: [
+        ...chromium.args,
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--single-process',
+        '--no-zygote'
+      ],
+      defaultViewport: chromium.defaultViewport,
+      executablePath: executablePath,
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
     })
     
-    // Generate PDF with timeout
-    const pdfBuffer = await Promise.race([
-      page.pdf({
-        format: 'A4',
-        printBackground: true,
-        margin: {
-          top: '20px',
-          right: '20px',
-          bottom: '20px',
-          left: '20px'
-        },
-        timeout: 20000
-      }),
-      new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('PDF generation timeout')), 20000)
-      )
-    ])
+    console.log('[PDF Generator] Browser launched successfully')
+    
+    const page = await browser.newPage()
+    console.log('[PDF Generator] New page created')
+    
+    // Set content with reduced wait time
+    await page.setContent(htmlContent, {
+      waitUntil: 'domcontentloaded', // Changed from 'networkidle0' for faster loading
+    })
+    
+    console.log('[PDF Generator] Content set, generating PDF...')
+    
+    // Generate PDF
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '20px',
+        right: '20px',
+        bottom: '20px',
+        left: '20px'
+      }
+    })
+    
+    console.log(`[PDF Generator] PDF generated successfully, size: ${pdfBuffer.length} bytes`)
     
     return Buffer.from(pdfBuffer)
     
@@ -367,7 +373,7 @@ export async function generateInvoicePDF(
     if (retryCount < maxRetries) {
       console.log(`[PDF Generator] Retrying... (attempt ${retryCount + 2}/${maxRetries + 1})`)
       // Wait a bit before retrying with exponential backoff
-      await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)))
+      await new Promise(resolve => setTimeout(resolve, 500 * (retryCount + 1)))
       return generateInvoicePDF(invoiceData, retryCount + 1)
     }
     
@@ -376,7 +382,7 @@ export async function generateInvoicePDF(
     
     if (errorMessage.includes('timeout')) {
       detailedError += 'Timeout error - Puppeteer took too long to respond. This may be due to system resources or Chromium issues.'
-    } else if (errorMessage.includes('Browser')) {
+    } else if (errorMessage.includes('Browser') || errorMessage.includes('Could not find')) {
       detailedError += 'Browser launch error - Failed to start Chromium. This may be due to missing dependencies or system configuration.'
     } else if (errorMessage.includes('Protocol error')) {
       detailedError += 'Protocol error - Communication with Chromium failed. This may be due to system instability.'
@@ -390,6 +396,7 @@ export async function generateInvoicePDF(
     if (browser) {
       try {
         await browser.close()
+        console.log('[PDF Generator] Browser closed successfully')
       } catch (closeError) {
         console.error('[PDF Generator] Error closing browser in finally block:', closeError)
       }

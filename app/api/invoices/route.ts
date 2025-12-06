@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { generateInvoiceNumber } from '@/lib/invoice-utils'
-import { generateInvoicePDF } from '@/lib/pdf-generator'
+import { generateInvoiceReactPDF } from '@/lib/pdf-generator-react'
 import { sendEmail } from '@/lib/email'
 import { InvoiceFormData, InvoiceEmailData } from '@/types'
 
@@ -173,23 +173,56 @@ export async function POST(request: NextRequest) {
       console.warn('Could not get user from auth header:', authError)
     }
 
-    // Generate unique invoice number and create invoice record with retry logic
-    // This handles race conditions where multiple invoices are created simultaneously
-    const maxRetries = 5
+    // Generate unique invoice number (now uses random generation for guaranteed uniqueness)
     let invoice: any = null
     let invoiceNumber: string = ''
     let pdfBuffer: Buffer | null = null
-    let lastError: Error | null = null
     
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      try {
-        // Generate unique invoice number
-        invoiceNumber = await generateInvoiceNumber()
-        console.log(`[Attempt ${attempt + 1}/${maxRetries}] Generated invoice number: ${invoiceNumber}`)
+    // Calculate total amount
+    const totalAmount = body.amount_paid + body.amount_remaining
+    
+    try {
+      // Generate unique invoice number (guaranteed unique by random generation)
+      invoiceNumber = await generateInvoiceNumber()
+      console.log(`[Invoice Creation] Generated invoice number: ${invoiceNumber}`)
+      
+      // Create invoice record in database (initially with 'draft' status)
+      // This ensures we have the invoice even if PDF generation fails
+      console.log(`[Invoice Creation] Creating invoice record in database...`)
+      const { data: createdInvoice, error: insertError } = await supabase
+        .from('invoices')
+        .insert({
+          invoice_number: invoiceNumber,
+          client_id: body.client_id,
+          amount_paid: body.amount_paid,
+          amount_remaining: body.amount_remaining,
+          payment_date: body.payment_date,
+          subscription_months: body.subscription_months,
+          status: 'draft',
+          created_by: createdBy,
+        })
+        .select()
+        .single()
+      
+      // Check if insert was successful
+      if (insertError) {
+        console.error(`[Invoice Creation] Database insert error:`, insertError)
         
-        // Calculate total amount
-        const totalAmount = body.amount_paid + body.amount_remaining
+        // Return detailed error
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: `Failed to create invoice: ${insertError.message}` 
+          },
+          { status: 500 }
+        )
+      }
+      
+      // Success! Invoice created in database
+      console.log(`[Invoice Creation] Invoice created successfully: ${invoiceNumber}`)
+      invoice = createdInvoice
         
+        // Now try to generate PDF (non-blocking - if it fails, we still have the invoice)
         // Prepare invoice email data
         const invoiceEmailData: InvoiceEmailData = {
           clientName: client.full_name,
@@ -202,119 +235,23 @@ export async function POST(request: NextRequest) {
           subscriptionMonths: body.subscription_months,
         }
         
-        // Generate PDF (with its own retry logic)
         try {
-          console.log(`[Attempt ${attempt + 1}/${maxRetries}] Starting PDF generation...`)
-          pdfBuffer = await generateInvoicePDF(invoiceEmailData)
-          console.log(`[Attempt ${attempt + 1}/${maxRetries}] PDF generated successfully, size: ${pdfBuffer.length} bytes`)
+          console.log(`[Invoice Creation] Starting PDF generation with React-PDF...`)
+          pdfBuffer = await generateInvoiceReactPDF(invoiceEmailData)
+          console.log(`[Invoice Creation] PDF generated successfully, size: ${pdfBuffer.length} bytes`)
         } catch (pdfError) {
-          console.error(`[Attempt ${attempt + 1}/${maxRetries}] PDF generation failed:`, pdfError)
-          lastError = pdfError instanceof Error ? pdfError : new Error('PDF generation failed')
-          
-          // Check if we're in development mode
-          const isDevelopment = process.env.NODE_ENV === 'development'
-          
-          // If this is the last attempt
-          if (attempt === maxRetries - 1) {
-            // In development, we can skip PDF and create invoice without it
-            if (isDevelopment) {
-              console.warn('[Development Mode] Skipping PDF generation, creating invoice without PDF attachment')
-              pdfBuffer = null // Will create invoice without PDF
-              // Don't continue the loop, proceed to create invoice
-            } else {
-              // In production, fail with detailed error
-              return NextResponse.json(
-                { 
-                  success: false, 
-                  error: `Failed to generate invoice PDF after ${maxRetries} attempts. Error: ${lastError.message}. This may be due to Puppeteer/Chromium issues. Please try again or contact support.` 
-                },
-                { status: 500 }
-              )
-            }
-          } else {
-            // Not the last attempt, retry the entire process
-            await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)))
-            continue
-          }
+          console.error(`[Invoice Creation] PDF generation failed:`, pdfError)
+          console.warn('[Invoice Creation] Continuing without PDF attachment')
+          pdfBuffer = null // Will send email without PDF
         }
-        
-        // Create invoice record in database (initially with 'draft' status)
-        console.log(`[Attempt ${attempt + 1}/${maxRetries}] Creating invoice record in database...`)
-        const { data: createdInvoice, error: insertError } = await supabase
-          .from('invoices')
-          .insert({
-            invoice_number: invoiceNumber,
-            client_id: body.client_id,
-            amount_paid: body.amount_paid,
-            amount_remaining: body.amount_remaining,
-            payment_date: body.payment_date,
-            subscription_months: body.subscription_months,
-            status: 'draft',
-            created_by: createdBy,
-          })
-          .select()
-          .single()
-        
-        // Check if insert was successful
-        if (insertError) {
-          console.error(`[Attempt ${attempt + 1}/${maxRetries}] Database insert error:`, insertError)
-          lastError = new Error(insertError.message)
-          
-          // If it's a duplicate key error (race condition), retry with a new invoice number
-          if (insertError.code === '23505') {
-            console.warn(`[Attempt ${attempt + 1}/${maxRetries}] Duplicate invoice number ${invoiceNumber} detected, retrying...`)
-            // Wait a bit before retrying to reduce collision probability
-            await new Promise(resolve => setTimeout(resolve, 100 * (attempt + 1)))
-            continue
-          }
-          
-          // For other errors, fail immediately with detailed error
-          return NextResponse.json(
-            { 
-              success: false, 
-              error: `Database error: ${insertError.message}. Code: ${insertError.code || 'unknown'}` 
-            },
-            { status: 500 }
-          )
-        }
-        
-        // Success! Break out of retry loop
-        console.log(`[Attempt ${attempt + 1}/${maxRetries}] Invoice created successfully: ${invoiceNumber}`)
-        invoice = createdInvoice
-        break
-        
-      } catch (error) {
-        console.error(`[Attempt ${attempt + 1}/${maxRetries}] Unexpected error in invoice creation:`, error)
-        lastError = error instanceof Error ? error : new Error('Unknown error')
-        
-        // If this is the last attempt, fail with detailed error
-        if (attempt === maxRetries - 1) {
-          return NextResponse.json(
-            { 
-              success: false, 
-              error: `Failed to create invoice after ${maxRetries} attempts. Last error: ${lastError.message}` 
-            },
-            { status: 500 }
-          )
-        }
-        
-        // Wait before retrying
-        await new Promise(resolve => setTimeout(resolve, 200 * (attempt + 1)))
-      }
-    }
-    
-    // If we exhausted all retries without success
-    if (!invoice) {
-      const errorMessage = lastError 
-        ? `Failed to create invoice record after ${maxRetries} attempts. Last error: ${lastError.message}`
-        : `Failed to create invoice record after ${maxRetries} attempts. Please try again.`
+
       
-      console.error('Invoice creation failed after all retries:', errorMessage)
-      
+    } catch (error) {
+      console.error('[Invoice Creation] Unexpected error:', error)
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Failed to create invoice. Please try again in a moment.' 
+          error: error instanceof Error ? error.message : 'Failed to create invoice' 
         },
         { status: 500 }
       )
@@ -327,9 +264,6 @@ export async function POST(request: NextRequest) {
       month: '2-digit',
       year: 'numeric',
     })
-    
-    // Calculate total amount for email
-    const totalAmount = body.amount_paid + body.amount_remaining
     
     // Send email with PDF attachment (if available)
     const emailOptions: any = {
